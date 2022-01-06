@@ -3,7 +3,11 @@
 static struct xiaomi_touch_pdata *touch_pdata;
 static struct xiaomi_touch *xiaomi_touch_device;
 
+<<<<<<< HEAD
 #define RAW_SIZE PAGE_SIZE * 4
+=======
+#define RAW_SIZE (PAGE_SIZE * 12)
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 
 static int xiaomi_touch_dev_open(struct inode *inode, struct file *file)
 {
@@ -517,6 +521,11 @@ struct device_attribute *attr, const char *buf, size_t count)
 		touch_data->enable_touch_raw(!!input);
 
 	touch_data->is_enable_touchraw = !!input;
+<<<<<<< HEAD
+=======
+	touch_pdata->raw_tail = 0;
+	touch_pdata->raw_head = 0;
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 
 	return count;
 }
@@ -587,6 +596,51 @@ struct device_attribute *attr, char *buf)
 	return touch_data->thp_cmd_size * sizeof(int);
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t thp_cmd_status_store(struct device *dev,
+struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct xiaomi_touch_interface *touch_data = NULL;
+	unsigned int input[MAX_BUF_SIZE];
+	const char *p = buf;
+	bool new_data = false;
+	int para_cnt = 0;
+	int i = 0;
+
+	if (!touch_pdata) {
+		return -ENOMEM;
+	}
+	touch_data = touch_pdata->touch_data[0];
+
+	memset(input, 0x00, sizeof(int) * MAX_BUF_SIZE);
+
+	for (p = buf; *p != '\0'; p++) {
+		if (*p >= '0' && *p <= '9') {
+			input[i] = input[i] * 10 + (*p - '0');
+			if (!new_data) {
+				new_data = true;
+				para_cnt++;
+			}
+		} else if (*p == ' ') {
+			if (new_data) {
+				i++;
+				new_data = false;
+			}
+		} else {
+			break;
+		}
+	}
+
+	pr_info("%s size:%d, cmd:%d, %d, %d, %d\n", __func__, para_cnt, input[0], input[1], input[2], input[3]);
+	memcpy(touch_data->thp_cmd_buf, input, sizeof(int) * para_cnt);
+	touch_data->thp_cmd_size = para_cnt;
+	sysfs_notify(&xiaomi_touch_device->dev->kobj, NULL, "touch_thp_cmd");
+
+	return count;
+}
+
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 static ssize_t thp_downthreshold_show(struct device *dev,
 struct device_attribute *attr, char *buf)
 {
@@ -796,6 +850,44 @@ struct device_attribute *attr, char *buf)
 	return snprintf(buf, PAGE_SIZE, "%d\n", touch_data->thp_smooth);
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t thp_dump_frame_store(struct device *dev,
+struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct xiaomi_touch_interface *touch_data = NULL;
+	unsigned int input;
+
+	if (!touch_pdata) {
+		return -ENOMEM;
+	}
+	touch_data = touch_pdata->touch_data[0];
+
+	if (sscanf(buf, "%d", &input) < 0)
+			return -EINVAL;
+
+	pr_info("%s,%d\n", __func__, input);
+	touch_data->thp_dump_raw = input;
+	sysfs_notify(&xiaomi_touch_dev.dev->kobj, NULL,  "touch_thp_dump");
+
+	return count;
+}
+
+static ssize_t thp_dump_frame_show(struct device *dev,
+struct device_attribute *attr, char *buf)
+{
+	struct xiaomi_touch_interface *touch_data = NULL;
+
+	if (!touch_pdata) {
+		return -ENOMEM;
+	}
+	touch_data = touch_pdata->touch_data[0];
+
+	return snprintf(buf, PAGE_SIZE, "%d\n", touch_data->thp_dump_raw);
+}
+
+
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 static ssize_t update_rawdata_show(struct device *dev,
 struct device_attribute *attr, char *buf)
 {
@@ -859,7 +951,12 @@ struct device_attribute *attr, char *buf)
 	return snprintf(buf, PAGE_SIZE, "%d\n", touch_pdata->suspend_state);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(touch_thp_cmd, (S_IRUGO), thp_cmd_status_show, NULL);
+=======
+static DEVICE_ATTR(touch_thp_cmd, (S_IRUGO | S_IWUSR | S_IWGRP),
+			thp_cmd_status_show, thp_cmd_status_store);
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 
 static DEVICE_ATTR(touch_thp_islandthd, (S_IRUGO | S_IWUSR | S_IWGRP),
 		   thp_islandthreshold_show, thp_islandthreshold_store);
@@ -876,6 +973,12 @@ static DEVICE_ATTR(touch_thp_movethd, (S_IRUGO | S_IWUSR | S_IWGRP),
 static DEVICE_ATTR(touch_thp_smooth, (S_IRUGO | S_IWUSR | S_IWGRP),
 		   thp_smooth_show, thp_smooth_store);
 
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR(touch_thp_dump, (S_IRUGO | S_IWUSR | S_IWGRP),
+		   thp_dump_frame_show, thp_dump_frame_store);
+
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 static DEVICE_ATTR(touch_thp_noisefilter, (S_IRUGO | S_IWUSR | S_IWGRP),
 		   thp_noisefilter_show, thp_noisefilter_store);
 
@@ -912,13 +1015,23 @@ static DEVICE_ATTR(touch_thp_y_resolution, (S_IRUGO), xiaomi_touch_y_resolution_
 
 static DEVICE_ATTR(suspend_state, 0644, xiaomi_touch_suspend_state, NULL);
 
+<<<<<<< HEAD
 static DEVICE_ATTR(update_rawdata, 0644, update_rawdata_show, NULL);
+=======
+static DEVICE_ATTR(update_rawdata, (S_IRUGO | S_IWUSR | S_IWGRP), update_rawdata_show,
+			NULL);
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 
 static struct attribute *touch_attr_group[] = {
 	&dev_attr_enable_touch_raw.attr,
 	&dev_attr_enable_touch_delta.attr,
+<<<<<<< HEAD
 	&dev_attr_clicktouch_raw.attr,
 	&dev_attr_touch_thp_cmd.attr,
+=======
+	&dev_attr_touch_thp_cmd.attr,
+	&dev_attr_clicktouch_raw.attr,
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 	&dev_attr_touch_thp_tx_num.attr,
 	&dev_attr_touch_thp_rx_num.attr,
 	&dev_attr_touch_thp_x_resolution.attr,
@@ -928,6 +1041,10 @@ static struct attribute *touch_attr_group[] = {
 	&dev_attr_touch_thp_movethd.attr,
 	&dev_attr_touch_thp_islandthd.attr,
 	&dev_attr_touch_thp_smooth.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_touch_thp_dump.attr,
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 	&dev_attr_touch_thp_noisefilter.attr,
 	&dev_attr_palm_sensor.attr,
 	&dev_attr_prox_sensor.attr,
@@ -940,6 +1057,97 @@ static struct attribute *touch_attr_group[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
+=======
+static void *event_start(struct seq_file *m, loff_t *p)
+{
+	int pos = 0;
+	struct last_touch_event *event;
+	if (!touch_pdata || !touch_pdata->last_touch_events)
+		return NULL;
+	event = touch_pdata->last_touch_events;
+	if (*p >= LAST_TOUCH_EVENTS_MAX)
+		return NULL;
+
+	pos = (event->head + *p) & (LAST_TOUCH_EVENTS_MAX - 1);
+	return event->touch_event_buf + pos;
+}
+
+static void *event_next(struct seq_file *m, void *v, loff_t *p)
+{
+	int pos = 0;
+	struct last_touch_event *event;
+	if (!touch_pdata || !touch_pdata->last_touch_events)
+		return NULL;
+	event = touch_pdata->last_touch_events;
+	if (++*p >= LAST_TOUCH_EVENTS_MAX)
+		return NULL;
+	pos = (event->head + *p) & (LAST_TOUCH_EVENTS_MAX - 1);
+	return event->touch_event_buf + pos;
+}
+
+static int32_t event_show(struct seq_file *m, void *v)
+{
+	struct touch_event *event_info;
+	struct rtc_time tm;
+	event_info = (struct touch_event *)v;
+
+	if (event_info->state == EVENT_INIT)
+		return 0;
+	rtc_time_to_tm(event_info->touch_time.tv_sec, &tm);
+	seq_printf(m, "%d-%02d-%02d %02d:%02d:%02d.%09lu UTC Finger (%2d) %s\n",
+		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+		tm.tm_hour, tm.tm_min, tm.tm_sec, event_info->touch_time.tv_nsec,
+		event_info->slot, event_info->state == EVENT_DOWN ? "P" : "R");
+	return 0;
+}
+
+static void event_stop(struct seq_file *m, void *v)
+{
+	return;
+}
+
+const struct seq_operations last_touch_events_seq_ops = {
+	.start = event_start,
+	.next = event_next,
+	.stop = event_stop,
+	.show = event_show,
+};
+
+static int32_t last_touch_events_open(struct inode *inode, struct file *file)
+{
+	return seq_open(file, &last_touch_events_seq_ops);
+}
+
+void last_touch_events_collect(int slot, int state)
+{
+	struct touch_event *event_info;
+	struct last_touch_event *event;
+	static int event_state[MAX_TOUCH_ID] = {0};
+
+	if (!touch_pdata || !touch_pdata->last_touch_events || slot >= MAX_TOUCH_ID || event_state[slot] == state)
+		return;
+	event_state[slot] = state;
+	event = touch_pdata->last_touch_events;
+
+	event_info = &event->touch_event_buf[event->head];
+	event_info->state = !!state ? EVENT_DOWN : EVENT_UP;
+	event_info->slot = slot;
+	getnstimeofday(&event_info->touch_time);
+	event->head++;
+	event->head &= LAST_TOUCH_EVENTS_MAX - 1;
+}
+EXPORT_SYMBOL_GPL(last_touch_events_collect);
+
+struct file_operations last_touch_events_ops = {
+	.owner = THIS_MODULE,
+	.open = last_touch_events_open,
+	.read = seq_read,
+	.llseek = seq_lseek,
+	.release = seq_release,
+};
+
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 static const struct of_device_id xiaomi_touch_of_match[] = {
 	{ .compatible = "xiaomi-touch", },
 	{ },
@@ -966,9 +1174,18 @@ static int xiaomi_touch_parse_dt(struct device *dev, struct xiaomi_touch_pdata *
 static int xiaomi_touch_probe(struct platform_device *pdev)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct device *dev = &pdev->dev;
 	struct xiaomi_touch_pdata *pdata;
 
+=======
+	int i = 0;
+	struct device *dev = &pdev->dev;
+	struct xiaomi_touch_pdata *pdata;
+
+	pr_info("%s enter\n", __func__);
+
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 	pdata = devm_kzalloc(dev, sizeof(struct xiaomi_touch_pdata), GFP_KERNEL);
 	if (!pdata)
 		return -ENOMEM;
@@ -979,11 +1196,27 @@ static int xiaomi_touch_probe(struct platform_device *pdev)
 		pr_err("%s alloc mem for raw data\n", __func__);
 		goto parse_dt_err;
 	}
+<<<<<<< HEAD
 	pdata->phy_base = virt_to_phys(pdata->raw_data);
 	pr_info("%s: kernel base:%lld, phy base:%lld\n", __func__,	(unsigned long)pdata->raw_data, (unsigned long)pdata->phy_base);
 
 	pr_info("%s enter\n", __func__);
 
+=======
+	for (i = 0; i < RAW_BUF_NUM; i++) {
+		pdata->raw_buf[i] = (unsigned int *)kzalloc(RAW_SIZE, GFP_KERNEL);
+		if (!pdata->raw_buf[i]) {
+			ret = -ENOMEM;
+			pr_err("%s alloc mem for raw buf data\n", __func__);
+			goto parse_dt_err;
+		}
+	}
+	pdata->raw_head = 0;
+	pdata->raw_tail = 0;
+	pdata->phy_base = virt_to_phys(pdata->raw_data);
+	pr_info("%s: kernel base:%lld, phy base:%lld\n", __func__,	(unsigned long)pdata->raw_data, (unsigned long)pdata->phy_base);
+	spin_lock_init(&pdata->raw_lock);
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 	ret = xiaomi_touch_parse_dt(dev, pdata);
 	if (ret < 0) {
 		pr_err("%s parse dt error:%d\n", __func__, ret);
@@ -1023,6 +1256,15 @@ static int xiaomi_touch_probe(struct platform_device *pdev)
 		goto sys_group_err;
 	}
 
+<<<<<<< HEAD
+=======
+	pdata->last_touch_events = (struct last_touch_event *)kzalloc(sizeof(struct last_touch_event), GFP_KERNEL);
+	if (pdata->last_touch_events == NULL) {
+		ret = -ENOMEM;
+		pr_err("%s: alloc mem for last touch evnets\n", __func__);
+		goto sys_group_err;
+	}
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 	pdata->device = &xiaomi_touch_dev;
 	dev_set_drvdata(xiaomi_touch_dev.dev, pdata);
 
@@ -1035,6 +1277,11 @@ static int xiaomi_touch_probe(struct platform_device *pdev)
 		ret = -ENODEV;
 		goto sys_group_err;
 	}
+<<<<<<< HEAD
+=======
+	pdata->last_touch_events_proc =
+		proc_create("last_touch_events", 0644, NULL, &last_touch_events_ops);
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 
 	pr_info("%s over\n", __func__);
 
@@ -1049,6 +1296,13 @@ sys_group_err:
 		kfree(pdata->touch_data[1]);
 		pdata->touch_data[1] = NULL;
 	}
+<<<<<<< HEAD
+=======
+	if (pdata->last_touch_events) {
+		kfree(pdata->last_touch_events);
+		pdata->last_touch_events = NULL;
+	}
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 data_mem_err:
 	device_destroy(xiaomi_touch_dev.class, 'T');
 device_create_err:
@@ -1061,12 +1315,26 @@ parse_dt_err:
 		kfree(pdata->raw_data);
 		pdata->raw_data = NULL;
 	}
+<<<<<<< HEAD
+=======
+	for (i = 0; i < RAW_BUF_NUM; i++) {
+		if (pdata->raw_buf[i]) {
+			kfree(pdata->raw_buf[i]);
+			pdata->raw_buf[i] = NULL;
+		}
+	}
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 	pr_err("%s fail!\n", __func__);
 	return ret;
 }
 
 static int xiaomi_touch_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
+=======
+	int i;
+
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 	sysfs_remove_group(&xiaomi_touch_dev.dev->kobj, &xiaomi_touch_dev.attrs);
 	device_destroy(xiaomi_touch_dev.class, 'T');
 	class_destroy(xiaomi_touch_dev.class);
@@ -1076,6 +1344,26 @@ static int xiaomi_touch_remove(struct platform_device *pdev)
 		kfree(touch_pdata->raw_data);
 		touch_pdata->raw_data = NULL;
 	}
+<<<<<<< HEAD
+=======
+
+	for (i = 0; i < RAW_BUF_NUM; i++) {
+		if (touch_pdata->raw_buf[i]) {
+			kfree(touch_pdata->raw_buf[i]);
+			touch_pdata->raw_buf[i] = NULL;
+		}
+	}
+
+	if (touch_pdata->last_touch_events) {
+		kfree(touch_pdata->last_touch_events);
+		touch_pdata->last_touch_events = NULL;
+	}
+	if (touch_pdata->last_touch_events_proc != NULL) {
+		remove_proc_entry("last_touch_events", NULL);
+		touch_pdata->last_touch_events_proc = NULL;
+	}
+
+>>>>>>> a4faf64c4b4ce (input: touchscreen: Import xiaomi touch driver)
 	if (touch_pdata->touch_data[0]) {
 		kfree(touch_pdata->touch_data[0]);
 		touch_pdata->touch_data[0] = NULL;
