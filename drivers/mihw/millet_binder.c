@@ -22,9 +22,18 @@ static void
 __binder_sendto(struct millet_data *data, struct task_struct *dst,
 		struct task_struct *src, int caller_tid, bool oneway, int code);
 
-extern void query_binder_app_stat(int uid);
-extern void oem_register_binder_hook(struct oem_binder_hook *set);
-extern struct oem_binder_hook oem_binder_hook_set;
+/*
+ * Some trees do not include Xiaomi OEM binder hooks in drivers/android/binder.c.
+ * Provide weak fallbacks so millet binder can still link; strong OEM symbols,
+ * when present, will override these definitions.
+ */
+void __weak query_binder_app_stat(int uid)
+{
+}
+
+void __weak oem_register_binder_hook(struct oem_binder_hook *set)
+{
+}
 
 static void
 mi_binder_reply_hook(struct task_struct *dst, struct task_struct *src,
@@ -242,4 +251,3 @@ static int __init init_millet_binder_drv(void)
 module_init(init_millet_binder_drv);
 
 MODULE_LICENSE("GPL");
-
