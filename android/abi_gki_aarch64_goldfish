@@ -1,6 +1,10 @@
 [abi_symbol_list]
 # commonly used symbols
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   add_timer
+========
+  alloc_anon_inode
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   __alloc_disk_node
   alloc_etherdev_mqs
   __alloc_pages_nodemask
@@ -11,9 +15,20 @@
   arm64_const_caps_ready
   bcmp
   bio_alloc_bioset
+  bio_endio
+  blk_alloc_queue
   blk_cleanup_queue
+  blk_queue_flag_clear
   blk_queue_flag_set
+  blk_queue_io_min
+  blk_queue_io_opt
+  blk_queue_logical_block_size
+  blk_queue_make_request
+  blk_queue_max_discard_sectors
+  blk_queue_max_write_zeroes_sectors
+  blk_queue_physical_block_size
   blk_queue_write_cache
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   bpf_trace_run1
   bpf_trace_run2
   bpf_trace_run3
@@ -22,40 +37,82 @@
   build_skb
   cancel_delayed_work_sync
   cancel_work_sync
+========
+  bpf_trace_run2
+  bpf_trace_run3
+  bus_register
+  bus_unregister
+  cancel_delayed_work_sync
+  cancel_work_sync
+  capable
+  cfg80211_inform_bss_data
+  cfg80211_put_bss
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   __cfi_slowpath
   __check_object_size
   __class_create
   class_destroy
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   __close_fd
+========
+  __ClearPageMovable
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   complete
   complete_all
   __const_udelay
   consume_skb
+  contig_page_data
+  __cpuhp_remove_state
+  __cpuhp_setup_state
+  __cpuhp_state_add_instance
+  __cpuhp_state_remove_instance
   cpu_hwcap_keys
   cpu_hwcaps
   cpumask_next
   cpu_number
   __cpu_online_mask
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  __cpu_possible_mask
+  crypto_register_alg
+  crypto_register_scomp
+  crypto_unregister_alg
+  crypto_unregister_scomp
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   _ctype
+  debugfs_create_dir
+  debugfs_create_file
+  debugfs_remove_recursive
   delayed_work_timer_fn
   del_gendisk
-  del_timer
   del_timer_sync
   destroy_workqueue
   _dev_err
   device_add_disk
   device_create
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   device_init_wakeup
+========
+  device_initialize
+  device_register
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   device_release_driver
   device_unregister
   _dev_info
   __dev_kfree_skb_any
   devm_ioremap
-  devm_kfree
   devm_kmalloc
   devm_request_threaded_irq
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  dev_queue_xmit
+  dev_set_name
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   _dev_warn
   dma_alloc_attrs
+  dma_direct_map_sg
+  dma_direct_sync_sg_for_device
+  dma_direct_unmap_sg
   dma_fence_context_alloc
   dma_fence_init
   dma_fence_release
@@ -63,25 +120,38 @@
   dma_free_attrs
   dma_set_coherent_mask
   dma_set_mask
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  down_read
+  down_write
+  ether_setup
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   ethtool_op_get_link
   eth_validate_addr
   event_triggers_call
   fd_install
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   fget
   find_next_bit
+========
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   finish_wait
   flush_work
-  flush_workqueue
   fput
   free_irq
   free_netdev
   __free_pages
   free_pages
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  freezing_slow_path
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   fs_bio_set
   get_device
   __get_free_pages
   get_random_bytes
   get_unused_fd_flags
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   hci_alloc_dev
   __hci_cmd_sync
   hci_free_dev
@@ -104,6 +174,17 @@
   ieee80211_register_hw
   ieee80211_start_tx_ba_cb_irqsafe
   ieee80211_stop_tx_ba_cb_irqsafe
+========
+  hwrng_register
+  hwrng_unregister
+  ida_alloc_range
+  ida_free
+  idr_alloc
+  idr_destroy
+  idr_remove
+  init_pseudo
+  __init_rwsem
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   init_timer_key
   init_wait_entry
   __init_waitqueue_head
@@ -113,10 +194,20 @@
   input_register_device
   input_unregister_device
   iounmap
+  iput
   jiffies
   jiffies_to_msecs
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   kfree
   kfree_skb
+========
+  kern_mount
+  kern_unmount
+  kfree
+  kfree_skb
+  kill_anon_super
+  kimage_vaddr
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   kimage_voffset
   __kmalloc
   kmalloc_caches
@@ -127,16 +218,25 @@
   kmem_cache_free
   kmemdup
   kobject_add
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   kobject_create_and_add
+========
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   kobject_init
   kobject_put
   kobject_uevent
+  krealloc
   kstrdup
   kstrtoint
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   kstrtoll
   kthread_create_on_node
   kthread_should_stop
   kthread_stop
+========
+  kstrtoull
+  kthread_create_on_node
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   ktime_get
   ktime_get_mono_fast_ns
   ktime_get_raw_ts64
@@ -149,9 +249,14 @@
   __list_add_valid
   __list_del_entry_valid
   __local_bh_enable_ip
+  lzo1x_decompress_safe
   memcpy
   memmove
+  memparse
+  memremap
   memset
+  memstart_addr
+  memunmap
   misc_deregister
   misc_register
   mod_timer
@@ -164,6 +269,7 @@
   mutex_lock_interruptible
   mutex_trylock
   mutex_unlock
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   napi_complete_done
   napi_disable
   __napi_schedule
@@ -176,6 +282,16 @@
   netif_napi_add
   netif_set_real_num_rx_queues
   netif_set_real_num_tx_queues
+========
+  netdev_err
+  netdev_info
+  netdev_rx_handler_register
+  netdev_rx_handler_unregister
+  netdev_upper_dev_unlink
+  netif_carrier_off
+  netif_carrier_on
+  netif_device_detach
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   netif_tx_stop_all_queues
   netif_tx_wake_queue
   nf_conntrack_destroy
@@ -184,36 +300,53 @@
   noop_llseek
   nr_cpu_ids
   __num_online_cpus
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  param_ops_bint
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   param_ops_bool
+  param_ops_charp
   param_ops_int
   passthru_features_check
   pci_alloc_irq_vectors_affinity
   pci_disable_device
   pci_enable_device
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   pci_free_irq_vectors
   pci_irq_vector
+========
+  pci_iomap
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   pci_read_config_byte
   pci_read_config_dword
+  pci_read_config_word
   __pci_register_driver
   pci_release_region
+  pci_release_regions
   pci_request_region
+  pci_request_regions
   pci_set_master
   pci_set_power_state
   pci_unregister_driver
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  pci_write_config_dword
+  __per_cpu_offset
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   perf_trace_buf_alloc
   perf_trace_run_bpf_submit
-  physvirt_offset
-  platform_device_add
-  platform_device_alloc
-  platform_device_del
-  platform_device_put
   platform_device_unregister
   __platform_driver_register
   platform_driver_unregister
   platform_get_irq
   platform_get_resource
   pm_runtime_allow
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   pm_runtime_forbid
+========
+  __pm_runtime_disable
+  pm_runtime_enable
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   __pm_runtime_resume
   __pm_runtime_suspend
   __pm_runtime_use_autosuspend
@@ -239,10 +372,19 @@
   _raw_spin_unlock_irqrestore
   __rcu_read_lock
   __rcu_read_unlock
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   refcount_dec_and_test_checked
   refcount_inc_checked
   register_blkdev
   register_netdev
+========
+  refcount_warn_saturate
+  __refrigerator
+  register_blkdev
+  register_netdevice
+  register_netdevice_notifier
+  register_shrinker
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   register_virtio_device
   register_virtio_driver
   __regmap_init
@@ -256,9 +398,15 @@
   rtnl_unlock
   schedule
   schedule_timeout
+  schedule_timeout_uninterruptible
   scnprintf
+  seq_lseek
+  seq_open
   seq_printf
+  seq_read
+  seq_release
   set_disk_ro
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   sg_init_one
   sg_init_table
   sg_next
@@ -269,34 +417,77 @@
   skb_put
   skb_queue_tail
   skb_to_sgvec
+========
+  __SetPageMovable
+  sg_alloc_table
+  sg_free_table
+  sg_init_one
+  sg_init_table
+  sg_next
+  simple_strtoul
+  skb_add_rx_frag
+  skb_dequeue
+  skb_push
+  skb_put
+  skb_queue_tail
+  snd_card_disconnect
+  snd_card_free
+  snd_card_new
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   snd_card_register
+  snd_card_rw_proc_new
+  snd_component_add
+  snd_ctl_add
+  _snd_ctl_add_slave
+  snd_ctl_boolean_mono_info
   snd_ctl_enum_info
+  snd_ctl_find_id
+  snd_ctl_make_virtual_master
+  snd_ctl_new1
   snd_ctl_sync_vmaster
   snd_device_new
+  snd_dma_alloc_pages
+  snd_dma_free_pages
   snd_pci_quirk_lookup
   snd_pcm_add_chmap_ctls
+  snd_pcm_alt_chmaps
+  snd_pcm_hw_constraint_integer
+  snd_pcm_lib_free_pages
+  snd_pcm_lib_ioctl
+  snd_pcm_lib_malloc_pages
+  snd_pcm_lib_preallocate_pages_for_all
+  snd_pcm_limit_hw_rates
+  snd_pcm_new
   snd_pcm_period_elapsed
+  snd_pcm_set_ops
+  snd_pcm_std_chmaps
   snprintf
   softnet_data
   sort
   sprintf
-  sscanf
   __stack_chk_fail
   __stack_chk_guard
-  strchr
   strcmp
   strcpy
   strlcpy
   strlen
   strncmp
   strncpy
+  strsep
   submit_bio
   __sw_hweight32
   sync_file_create
   synchronize_irq
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   sysfs_create_group
+========
+  synchronize_rcu
+  sysfs_create_group
+  __sysfs_match_string
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   sysfs_remove_group
   sysfs_remove_link
+  system_freezing_cnt
   system_wq
   trace_define_field
   trace_event_buffer_commit
@@ -308,6 +499,7 @@
   trace_raw_output_prep
   trace_seq_printf
   try_module_get
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   unlock_page
   unregister_blkdev
   unregister_netdev
@@ -325,10 +517,27 @@
   usb_hcd_unlink_urb_from_ep
   usb_put_hcd
   usb_remove_hcd
+========
+  __ubsan_handle_cfi_check_fail_abort
+  unlock_page
+  unregister_blkdev
+  unregister_netdev
+  unregister_netdevice_notifier
+  unregister_netdevice_queue
+  unregister_shrinker
+  unregister_virtio_device
+  unregister_virtio_driver
+  up_read
+  up_write
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   usleep_range
   vabits_actual
+  vfree
+  virtio_break_device
   virtio_check_driver_offered_feature
   virtio_config_changed
+  virtio_device_freeze
+  virtio_device_restore
   virtio_max_dma_size
   virtqueue_add_inbuf
   virtqueue_add_outbuf
@@ -346,17 +555,21 @@
   virtqueue_kick
   virtqueue_kick_prepare
   virtqueue_notify
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   virtqueue_poll
   vmemmap
+========
+  vmalloc
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   vring_create_virtqueue
   vring_del_virtqueue
   vring_interrupt
   vring_transport_features
-  wait_for_completion
   __wake_up
   wake_up_process
   __warn_printk
 
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
 # required by btintel.ko
   bt_to_errno
   hci_cmd_sync
@@ -408,6 +621,10 @@
   usb_submit_urb
   usb_unanchor_urb
   wake_up_bit
+========
+# required by deferred-free-helper.ko
+  sched_setscheduler
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
 
 # required by dummy-cpufreq.ko
   cpufreq_generic_attr
@@ -416,6 +633,7 @@
 
 # required by failover.ko
   netdev_master_upper_dev_link
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   netdev_rx_handler_register
   netdev_rx_handler_unregister
   netdev_upper_dev_unlink
@@ -428,6 +646,35 @@
   kimage_vaddr
   memremap
   memunmap
+========
+  rtnl_is_locked
+
+# required by gnss-cmdline.ko
+  bus_find_device
+  device_find_child
+  device_match_name
+  platform_bus_type
+  strstr
+
+# required by gnss-serial.ko
+  gnss_allocate_device
+  gnss_deregister_device
+  gnss_insert_raw
+  gnss_put_device
+  gnss_register_device
+  of_property_read_variable_u32_array
+  __pm_runtime_idle
+  serdev_device_close
+  serdev_device_open
+  serdev_device_set_baudrate
+  serdev_device_set_flow_control
+  serdev_device_wait_until_sent
+  serdev_device_write
+  serdev_device_write_wakeup
+
+# required by goldfish_address_space.ko
+  __ioremap
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
 
 # required by goldfish_battery.ko
   power_supply_changed
@@ -436,6 +683,7 @@
   power_supply_unregister
 
 # required by goldfish_pipe.ko
+  devm_kfree
   get_user_pages_fast
   set_page_dirty
   tasklet_init
@@ -447,11 +695,22 @@
   dma_fence_free
 
 # required by hci_vhci.ko
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   _copy_from_iter_full
+========
+  bt_err
+  _copy_from_iter_full
+  hci_alloc_dev
+  hci_free_dev
+  hci_recv_frame
+  hci_register_dev
+  hci_unregister_dev
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   skb_pull
   skb_queue_head
   skb_queue_purge
 
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
 # required by incrementalfs.ko
   bin2hex
   __break_lease
@@ -530,6 +789,13 @@
   vfs_rmdir
   vfs_setxattr
   vfs_unlink
+========
+# required by lzo-rle.ko
+  lzorle1x_1_compress
+
+# required by lzo.ko
+  lzo1x_1_compress
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
 
 # required by mac80211_hwsim.ko
   alloc_netdev_mqs
@@ -540,8 +806,13 @@
   dev_alloc_name
   device_bind_driver
   dst_release
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   ether_setup
   eth_mac_addr
+========
+  eth_mac_addr
+  generic_file_llseek
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   genlmsg_put
   genl_notify
   genl_register_family
@@ -549,10 +820,17 @@
   hrtimer_forward
   ieee80211_probereq_get
   ieee80211_queue_delayed_work
+  ieee80211_radar_detected
   ieee80211_ready_on_channel
   ieee80211_remain_on_channel_expired
   ieee80211_rx_irqsafe
   ieee80211_scan_completed
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  ieee80211_start_tx_ba_cb_irqsafe
+  ieee80211_stop_tx_ba_cb_irqsafe
+  ieee80211_tx_prepare_skb
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   ieee80211_tx_status_irqsafe
   ieee80211_unregister_hw
   init_net
@@ -579,11 +857,18 @@
   rht_bucket_nested
   rht_bucket_nested_insert
   schedule_timeout_interruptible
+  simple_attr_open
+  simple_attr_read
+  simple_attr_release
+  simple_attr_write
   skb_copy
   skb_copy_expand
   __skb_ext_put
   skb_trim
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   skb_unlink
+========
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   unregister_pernet_device
   wiphy_apply_custom_regulatory
 
@@ -605,16 +890,12 @@
   bd_unlink_disk_holder
   bio_add_page
   bio_associate_blkg
-  bio_endio
   bio_put
   bioset_exit
   bioset_init
-  blk_alloc_queue
   blkdev_get_by_dev
   blkdev_put
   blk_finish_plug
-  blk_queue_flag_clear
-  blk_queue_make_request
   blk_queue_split
   blk_register_region
   blk_set_stacking_limits
@@ -627,6 +908,7 @@
   __cpu_possible_mask
   file_path
   flush_signals
+  flush_workqueue
   free_buffer_head
   int_pow
   invalidate_bdev
@@ -638,8 +920,13 @@
   kobject_del
   kobject_get
   kstrtobool
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   kstrtouint
   kstrtoull
+========
+  kstrtoll
+  kstrtouint
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   kthread_parkme
   kthread_should_park
   mempool_create
@@ -658,17 +945,23 @@
   register_sysctl_table
   remove_proc_entry
   seq_file_path
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   seq_lseek
   seq_open
   seq_read
   seq_release
   simple_strtoul
+========
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   skip_spaces
   strreplace
   submit_bh
   submit_bio_wait
   sync_blockdev
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   synchronize_rcu
+========
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   sysfs_create_link
   sysfs_notify
   unregister_reboot_notifier
@@ -686,7 +979,10 @@
   dev_mc_sync_multiple
   dev_mc_unsync
   dev_open
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   dev_queue_xmit
+========
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   dev_set_mtu
   dev_uc_sync_multiple
   dev_uc_unsync
@@ -696,17 +992,62 @@
   netdev_lower_state_changed
   netdev_pick_tx
   pci_bus_type
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   unregister_netdevice_queue
 
 # required by rtc-test.ko
+========
+  register_netdev
+
+# required by page_pool.ko
+  mod_node_page_state
+
+# required by pulse8-cec.ko
+  cec_allocate_adapter
+  cec_delete_adapter
+  cec_received_msg_ts
+  cec_register_adapter
+  cec_s_log_addrs
+  cec_s_phys_addr
+  cec_transmit_attempt_done_ts
+  cec_unregister_adapter
+  serio_close
+  serio_open
+  __serio_register_driver
+  serio_unregister_driver
+  strscpy
+  time64_to_tm
+  wait_for_completion_timeout
+
+# required by rtc-test.ko
+  add_timer
+  del_timer
+  device_init_wakeup
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   devm_rtc_allocate_device
+  platform_device_add
+  platform_device_alloc
+  platform_device_del
+  platform_device_put
   __rtc_register_device
   rtc_time64_to_tm
   rtc_tm_to_time64
   rtc_update_irq
 
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+# required by snd-ac97-codec.ko
+  snd_ctl_remove_id
+  snd_info_create_card_entry
+  snd_info_free_entry
+  snd_interval_refine
+  snd_pcm_hw_rule_add
+  strcat
+
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
 # required by snd-hda-codec-generic.ko
   snd_ctl_boolean_stereo_info
+  strchr
   strlcat
 
 # required by snd-hda-codec.ko
@@ -718,56 +1059,47 @@
   get_device_system_crosststamp
   kvasprintf
   ns_to_timespec
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   __pm_runtime_disable
   pm_runtime_enable
+========
+  pm_runtime_forbid
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   pm_runtime_force_resume
   pm_runtime_force_suspend
   pm_runtime_set_autosuspend_delay
   __printk_ratelimit
   regcache_mark_dirty
-  snd_card_rw_proc_new
-  snd_component_add
-  snd_ctl_add
-  _snd_ctl_add_slave
   snd_ctl_add_vmaster_hook
   snd_ctl_apply_vmaster_slaves
-  snd_ctl_boolean_mono_info
-  snd_ctl_find_id
-  snd_ctl_make_virtual_master
-  snd_ctl_new1
   snd_ctl_remove
   snd_device_disconnect
   snd_device_free
   snd_jack_new
   snd_jack_report
   snd_jack_set_key
-  snd_pcm_hw_constraint_integer
   snd_pcm_hw_constraint_minmax
   snd_pcm_hw_constraint_step
   snd_pcm_lib_default_mmap
-  snd_pcm_lib_free_pages
-  snd_pcm_lib_ioctl
-  snd_pcm_lib_malloc_pages
-  snd_pcm_lib_preallocate_pages_for_all
-  snd_pcm_limit_hw_rates
-  snd_pcm_new
-  snd_pcm_set_ops
   snd_pcm_set_sync
-  snd_pcm_std_chmaps
   strncat
   timecounter_read
 
 # required by snd-hda-core.ko
   add_uevent_var
-  bus_register
-  bus_unregister
   device_add
   device_del
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   device_initialize
   dev_set_name
   kasprintf
   krealloc
   pm_runtime_get_if_in_use
+========
+  kasprintf
+  kobject_create_and_add
+  pm_runtime_get_if_active
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   __pm_runtime_set_status
   regcache_cache_only
   regcache_sync
@@ -775,8 +1107,6 @@
   regmap_read
   regmap_update_bits_base
   regmap_write
-  snd_dma_alloc_pages
-  snd_dma_free_pages
   snd_pcm_format_width
   __sw_hweight64
   timecounter_init
@@ -784,8 +1114,6 @@
 # required by snd-hda-intel.ko
   param_array_ops
   param_get_int
-  param_ops_bint
-  param_ops_charp
   param_set_int
   pci_dev_put
   pci_disable_msi
@@ -794,22 +1122,36 @@
   pci_intx
   pci_ioremap_bar
   pci_match_id
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   pci_read_config_word
   pci_release_regions
   pci_request_regions
+========
+  pci_set_power_state
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   pci_write_config_byte
-  pci_write_config_dword
   pci_write_config_word
-  snd_card_disconnect
-  snd_card_free
-  snd_card_new
+
+# required by snd-intel8x0.ko
+  snd_pcm_hw_constraint_list
+  snd_pcm_hw_constraint_msbits
+
+# required by system_heap.ko
+  dma_buf_export
+  dma_direct_sync_sg_for_cpu
+  dma_heap_add
+  dma_heap_get_dev
+  dma_heap_get_name
+  __sg_page_iter_next
+  __sg_page_iter_start
+  vmap
+  vunmap
 
 # required by test_meminit.ko
   kmem_cache_alloc_bulk
   kmem_cache_free_bulk
-  vfree
-  vmalloc
 
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
 # required by usbip-core.ko
   iov_iter_kvec
   param_ops_ulong
@@ -832,6 +1174,61 @@
   dma_direct_map_sg
   dma_direct_sync_sg_for_device
   dma_direct_unmap_sg
+========
+# required by tpm.ko
+  alloc_chrdev_region
+  cdev_device_add
+  cdev_device_del
+  cdev_init
+  __compat_only_sysfs_link_entry_to_kobj
+  devm_add_action
+  efi
+  efi_tpm_final_log_size
+  hash_digest_size
+  idr_get_next
+  idr_replace
+  jiffies_to_usecs
+  memchr_inv
+  of_find_property
+  of_get_property
+  of_property_match_string
+  securityfs_create_dir
+  securityfs_create_file
+  securityfs_remove
+  seq_putc
+  seq_write
+  unregister_chrdev_region
+  __usecs_to_jiffies
+
+# required by tpm_vtpm_proxy.ko
+  anon_inode_getfile
+
+# required by virt_wifi.ko
+  cfg80211_connect_done
+  cfg80211_disconnected
+  cfg80211_scan_done
+  __dev_get_by_index
+  dev_printk
+  __module_get
+  netdev_upper_dev_link
+  netif_stacked_transfer_operstate
+  rtnl_link_register
+  rtnl_link_unregister
+  skb_clone
+  unregister_netdevice_many
+  wiphy_free
+  wiphy_new_nm
+  wiphy_register
+  wiphy_unregister
+
+# required by virt_wifi_sim.ko
+  ieee80211_get_channel_khz
+  release_firmware
+  request_firmware
+
+# required by virtio-gpu.ko
+  dma_buf_get_uuid
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   dma_fence_match_context
   dma_fence_wait_timeout
   dma_resv_add_excl_fence
@@ -873,6 +1270,7 @@
   drm_crtc_send_vblank_event
   drm_cvt_mode
   drm_dbg
+  drm_debugfs_create_files
   drm_dev_alloc
   drm_dev_put
   drm_dev_register
@@ -914,12 +1312,19 @@
   drm_universal_plane_init
   __get_task_comm
   kmalloc_order_trace
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   memdup_user
   sg_alloc_table
   __sg_alloc_table_from_pages
   sg_free_table
   sync_file_get_fence
   __tracepoint_dma_fence_emit
+========
+  __sg_alloc_table_from_pages
+  sync_file_get_fence
+  __tracepoint_dma_fence_emit
+  __tracepoint_gpu_mem_total
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   ttm_bo_add_to_lru
   ttm_bo_del_sub_from_lru
   ttm_bo_device_init
@@ -948,9 +1353,20 @@
   ww_mutex_unlock
 
 # required by virtio-rng.ko
-  hwrng_register
-  hwrng_unregister
   wait_for_completion_killable
+
+# required by virtio_balloon.ko
+  adjust_managed_page_count
+  all_vm_events
+  balloon_aops
+  balloon_page_alloc
+  balloon_page_dequeue
+  balloon_page_enqueue
+  si_mem_available
+  si_meminfo
+  system_freezable_wq
+  vm_event_states
+  vm_node_stat
 
 # required by virtio_blk.ko
   blk_execute_rq
@@ -959,25 +1375,21 @@
   blk_mq_complete_request
   blk_mq_end_request
   blk_mq_free_tag_set
+  blk_mq_freeze_queue
   blk_mq_init_queue
-  blk_mq_quiesce_queue
+  blk_mq_quiesce_queue_nowait
   blk_mq_start_request
   blk_mq_start_stopped_hw_queues
   blk_mq_stop_hw_queue
+  blk_mq_unfreeze_queue
   blk_mq_unquiesce_queue
   blk_mq_virtio_map_queues
   blk_put_request
   blk_queue_alignment_offset
-  blk_queue_io_min
-  blk_queue_io_opt
-  blk_queue_logical_block_size
-  blk_queue_max_discard_sectors
   blk_queue_max_discard_segments
   blk_queue_max_hw_sectors
   blk_queue_max_segments
   blk_queue_max_segment_size
-  blk_queue_max_write_zeroes_sectors
-  blk_queue_physical_block_size
   blk_rq_map_kern
   blk_rq_map_sg
   blk_status_to_errno
@@ -985,15 +1397,14 @@
   kobject_uevent_env
   param_ops_uint
   string_get_size
-  __sysfs_match_string
 
 # required by virtio_console.ko
   cdev_add
   cdev_alloc
   cdev_del
+  debugfs_remove
   device_destroy
   fasync_helper
-  freezing_slow_path
   hvc_alloc
   hvc_instantiate
   hvc_kick
@@ -1003,11 +1414,16 @@
   kill_fasync
   pipe_lock
   pipe_unlock
-  __refrigerator
   __register_chrdev
+  single_open
+  single_release
   __splice_from_pipe
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   system_freezing_cnt
+========
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   __unregister_chrdev
+  wait_for_completion
 
 # required by virtio_input.ko
   input_alloc_absinfo
@@ -1016,11 +1432,9 @@
 
 # required by virtio_mmio.ko
   device_for_each_child
-  device_register
-  __devm_request_region
-  iomem_resource
-  memparse
+  devm_platform_ioremap_resource
   platform_device_register_full
+  sscanf
 
 # required by virtio_net.ko
   arch_bpf_jit_check_func
@@ -1029,10 +1443,14 @@
   bpf_prog_sub
   bpf_stats_enabled_key
   bpf_warn_invalid_xdp_action
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   __cpuhp_remove_state
   __cpuhp_setup_state
   __cpuhp_state_add_instance
   __cpuhp_state_remove_instance
+========
+  build_skb
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   cpumask_next_wrap
   cpus_read_lock
   cpus_read_unlock
@@ -1040,29 +1458,60 @@
   eth_prepare_mac_addr_change
   ethtool_op_get_ts_info
   eth_type_trans
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  find_next_bit
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   flow_keys_basic_dissector
   __napi_alloc_skb
+  napi_complete_done
   napi_consume_skb
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   napi_gro_receive
   napi_hash_del
   netdev_notify_peers
   netdev_warn
   netif_device_attach
+========
+  napi_disable
+  napi_gro_receive
+  napi_hash_del
+  __napi_schedule
+  napi_schedule_prep
+  netdev_notify_peers
+  netdev_warn
+  netif_device_attach
+  netif_napi_add
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   netif_napi_del
   netif_schedule_queue
   __netif_set_xps_queue
   net_ratelimit
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  __pskb_pull_tail
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   _raw_spin_trylock
   sched_clock
   skb_coalesce_rx_frag
   __skb_flow_dissect
   skb_partial_csum_set
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   skb_tstamp_tx
+========
+  skb_to_sgvec
+  skb_tstamp_tx
+  softnet_data
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   synchronize_net
   __tracepoint_xdp_exception
   virtqueue_add_inbuf_ctx
   virtqueue_enable_cb_delayed
   virtqueue_get_buf_ctx
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
+========
+  virtqueue_poll
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   xdp_convert_zc_to_xdp_frame
   xdp_do_flush_map
   xdp_do_redirect
@@ -1074,22 +1523,33 @@
 
 # required by virtio_pci.ko
   irq_set_affinity_hint
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
   pci_find_capability
   pci_find_ext_capability
   pci_find_next_capability
   pci_iomap
+========
+  pci_alloc_irq_vectors_affinity
+  pci_device_is_present
+  pci_disable_sriov
+  pci_enable_sriov
+  pci_find_capability
+  pci_find_ext_capability
+  pci_find_next_capability
+  pci_free_irq_vectors
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
   pci_iomap_range
   pci_irq_get_affinity
   pci_release_selected_regions
   pci_request_selected_regions
-  virtio_device_freeze
-  virtio_device_restore
+  pci_vfs_assigned
 
 # required by virtio_pmem.ko
   nvdimm_bus_register
   nvdimm_bus_unregister
   nvdimm_pmem_region_create
 
+<<<<<<<< HEAD:android/abi_gki_aarch64_goldfish
 # required by virtio_wifi.ko
   ieee80211_rx_napi
   ieee80211_stop_queues
@@ -1145,3 +1605,84 @@
   usb_hcd_pci_probe
   usb_hcd_pci_remove
   usb_hcd_pci_shutdown
+========
+# required by vmw_vsock_virtio_transport.ko
+  virtio_transport_connect
+  virtio_transport_deliver_tap_pkt
+  virtio_transport_destruct
+  virtio_transport_dgram_allow
+  virtio_transport_dgram_bind
+  virtio_transport_dgram_dequeue
+  virtio_transport_dgram_enqueue
+  virtio_transport_do_socket_init
+  virtio_transport_free_pkt
+  virtio_transport_notify_buffer_size
+  virtio_transport_notify_poll_in
+  virtio_transport_notify_poll_out
+  virtio_transport_notify_recv_init
+  virtio_transport_notify_recv_post_dequeue
+  virtio_transport_notify_recv_pre_block
+  virtio_transport_notify_recv_pre_dequeue
+  virtio_transport_notify_send_init
+  virtio_transport_notify_send_post_enqueue
+  virtio_transport_notify_send_pre_block
+  virtio_transport_notify_send_pre_enqueue
+  virtio_transport_recv_pkt
+  virtio_transport_release
+  virtio_transport_shutdown
+  virtio_transport_stream_allow
+  virtio_transport_stream_dequeue
+  virtio_transport_stream_enqueue
+  virtio_transport_stream_has_data
+  virtio_transport_stream_has_space
+  virtio_transport_stream_is_active
+  virtio_transport_stream_rcvhiwat
+  vsock_core_register
+  vsock_core_unregister
+  vsock_for_each_connected_socket
+
+# required by zram.ko
+  __alloc_percpu
+  bdget_disk
+  bdput
+  __class_register
+  class_unregister
+  crypto_alloc_base
+  crypto_destroy_tfm
+  crypto_has_alg
+  flush_dcache_page
+  free_percpu
+  fsync_bdev
+  generic_end_io_acct
+  generic_start_io_acct
+  idr_find
+  idr_for_each
+  kstrtou16
+  memset64
+  mutex_is_locked
+  page_endio
+  sysfs_streq
+  vzalloc
+
+# required by zsmalloc.ko
+  dec_zone_page_state
+  inc_zone_page_state
+  page_mapping
+  _raw_read_lock
+  _raw_read_unlock
+  _raw_write_lock
+  _raw_write_unlock
+  wait_on_page_bit
+
+# preserved by --additions-only
+  blk_mq_quiesce_queue
+  __devm_request_region
+  iomem_resource
+  __lock_page
+  lock_sock_nested
+  pm_runtime_get_if_in_use
+  refcount_dec_and_test_checked
+  refcount_inc_checked
+  release_sock
+  skb_unlink
+>>>>>>>> ack/android12-5.4-lts:android/abi_gki_aarch64_virtual_device
