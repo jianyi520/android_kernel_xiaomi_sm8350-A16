@@ -56,17 +56,17 @@ void cqhci_crypto_setup_rq_keyslot_manager_spec(struct cqhci_host *host,
 void cqhci_crypto_destroy_rq_keyslot_manager_spec(struct cqhci_host *host,
 						  struct request_queue *q);
 
-#if IS_ENABLED(CONFIG_MMC_CQHCI_CRYPTO)
+#if IS_ENABLED(CONFIG_MMC_CRYPTO)
 void cqhci_crypto_set_vops(struct cqhci_host *host,
 			   struct cqhci_host_crypto_variant_ops *crypto_vops);
 #else
 static inline void cqhci_crypto_set_vops(struct cqhci_host *host,
 			   struct cqhci_host_crypto_variant_ops *crypto_vops)
 {}
-#endif /* CONFIG_MMC_CQHCI_CRYPTO */
+#endif /* CONFIG_MMC_CRYPTO */
 
 /* Crypto Variant Ops Support */
-#if IS_ENABLED(CONFIG_MMC_CQHCI_CRYPTO)
+#if IS_ENABLED(CONFIG_MMC_CRYPTO)
 void cqhci_crypto_enable(struct cqhci_host *host);
 
 void cqhci_crypto_disable(struct cqhci_host *host);
@@ -139,7 +139,7 @@ static inline int cqhci_crypto_recovery_finish(struct cqhci_host *host)
 static inline void cqhci_crypto_setup_rq_keyslot_manager(struct cqhci_host *host,
 					   struct request_queue *q)
 {}
-#endif /* CONFIG_MMC_CQHCI_CRYPTO */
+#endif /* CONFIG_MMC_CRYPTO */
 
 void cqhci_crypto_destroy_rq_keyslot_manager(struct cqhci_host *host,
 					     struct request_queue *q);
@@ -151,5 +151,4 @@ int cqhci_crypto_cap_find(void *host_p,  enum blk_crypto_mode_num crypto_mode,
 			  unsigned int data_unit_size);
 
 #endif /* _CQHCI_CRYPTO_H */
-
 

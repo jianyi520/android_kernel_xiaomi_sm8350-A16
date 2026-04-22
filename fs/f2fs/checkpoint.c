@@ -24,16 +24,14 @@
 
 static struct kmem_cache *ino_entry_slab;
 struct kmem_cache *f2fs_inode_entry_slab;
+void f2fs_flush_ckpt_thread(struct f2fs_sb_info *sbi);
 
-void f2fs_stop_checkpoint(struct f2fs_sb_info *sbi, bool end_io,
-						unsigned char reason)
+void f2fs_stop_checkpoint(struct f2fs_sb_info *sbi, bool end_io)
 {
 	f2fs_build_fault_attr(sbi, 0, 0);
 	set_ckpt_flags(sbi, CP_ERROR_FLAG);
 	if (!end_io) {
 		f2fs_flush_merged_writes(sbi);
-
-		f2fs_handle_stop(sbi, reason);
 	}
 }
 
@@ -124,7 +122,7 @@ retry:
 		if (PTR_ERR(page) == -EIO &&
 				++count <= DEFAULT_RETRY_IO_COUNT)
 			goto retry;
-		f2fs_stop_checkpoint(sbi, false, STOP_CP_REASON_META_PAGE);
+		f2fs_stop_checkpoint(sbi, false);
 	}
 	return page;
 }
@@ -1824,7 +1822,11 @@ int f2fs_issue_checkpoint(struct f2fs_sb_info *sbi)
 	struct cp_control cpc;
 
 	cpc.reason = __get_cp_reason(sbi);
+#ifdef F2FS_MOUNT_MERGE_CHECKPOINT
 	if (!test_opt(sbi, MERGE_CHECKPOINT) || cpc.reason != CP_SYNC) {
+#else
+	if (cpc.reason != CP_SYNC) {
+#endif
 		int ret;
 
 		down_write(&sbi->gc_lock);

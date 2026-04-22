@@ -460,13 +460,13 @@ LZMA		= lzma
 LZ4		= lz4c
 XZ		= xz
 
-ifndef DISABLE_WRAPPER
-# Use the wrapper for the compiler.  This wrapper scans for new
-# warnings and causes the build to stop upon encountering them
-CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
-else
+#ifndef DISABLE_WRAPPER
+## Use the wrapper for the compiler.  This wrapper scans for new
+## warnings and causes the build to stop upon encountering them
+#CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
+#else
 CC		= $(REAL_CC)
-endif
+#endif
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void -Wno-unknown-attribute $(CF)
@@ -499,7 +499,7 @@ KBUILD_AFLAGS   := -D__ASSEMBLY__ -fno-PIE
 KBUILD_CFLAGS   := -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE \
 		   -Werror=implicit-function-declaration -Werror=implicit-int \
-		   -Werror=return-type -Wno-format-security \
+		   -Werror=return-type -Wno-format-security -fdiagnostics-absolute-paths \
 		   -std=gnu89
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=

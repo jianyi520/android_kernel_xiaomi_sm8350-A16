@@ -35,6 +35,10 @@
 
 #include <linux/syscore_ops.h>
 
+extern void handle_IPI(int ipinr, struct pt_regs *regs);
+extern void __init set_smp_cross_call(void (*fn)(const struct cpumask *,
+						  unsigned int));
+
 #include "irq-gic-common.h"
 
 #define GICD_INT_NMI_PRI	(GICD_INT_DEF_PRI & ~0x80)

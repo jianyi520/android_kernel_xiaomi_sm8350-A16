@@ -20,6 +20,7 @@ enum {
 #ifdef CONFIG_BLK_INLINE_ENCRYPTION
 
 struct keyslot_manager;
+struct blk_ksm_keyslot;
 
 /**
  * struct keyslot_mgmt_ll_ops - functions to manage keyslots in hardware
@@ -93,10 +94,34 @@ struct keyslot_manager *keyslot_manager_create_passthrough(
 void keyslot_manager_intersect_modes(struct keyslot_manager *parent,
 				     const struct keyslot_manager *child);
 
+bool keyslot_manager_is_superset(const struct keyslot_manager *ksm_superset,
+				 const struct keyslot_manager *ksm_subset);
+
+void keyslot_manager_update_capabilities(struct keyslot_manager *target,
+					 const struct keyslot_manager *source);
+
+bool keyslot_manager_is_empty(const struct keyslot_manager *ksm);
+
 int keyslot_manager_derive_raw_secret(struct keyslot_manager *ksm,
 				      const u8 *wrapped_key,
 				      unsigned int wrapped_key_size,
 				      u8 *secret, unsigned int secret_size);
+
+/*
+ * Backward-compatibility helpers for callers that still use blk_ksm_* naming.
+ * Some trees encode request keyslot indices in an opaque pointer.
+ */
+static inline int blk_ksm_get_slot_idx(const struct blk_ksm_keyslot *slot)
+{
+	return slot ? (int)((unsigned long)slot - 1) : -1;
+}
+
+#define blk_ksm_destroy			keyslot_manager_destroy
+#define blk_ksm_reprogram_all_keys	keyslot_manager_reprogram_all_keys
+#define blk_ksm_intersect_modes		keyslot_manager_intersect_modes
+#define blk_ksm_is_superset		keyslot_manager_is_superset
+#define blk_ksm_update_capabilities	keyslot_manager_update_capabilities
+#define blk_ksm_derive_raw_secret	keyslot_manager_derive_raw_secret
 
 #endif /* CONFIG_BLK_INLINE_ENCRYPTION */
 

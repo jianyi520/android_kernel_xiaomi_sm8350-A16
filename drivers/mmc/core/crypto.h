@@ -30,4 +30,6 @@ static inline void mmc_crypto_prepare_req(struct mmc_queue_req *mqrq) { }
 
 #endif /* CONFIG_MMC_CRYPTO */
 
+static inline void mmc_crypto_set_initial_state(struct mmc_host *host) { }
+
 #endif /* _MMC_CORE_CRYPTO_H */

@@ -14,6 +14,7 @@
 #include <linux/keyslot-manager.h>
 #include <linux/random.h>
 #include <linux/siphash.h>
+#include <linux/slab.h>
 
 #include "blk-crypto-internal.h"
 
@@ -79,16 +80,6 @@ int blk_crypto_submit_bio(struct bio **bio_ptr)
 	if (!bc || !bio_has_data(bio))
 		return 0;
 
-	/*
-	 * When a read bio is marked for fallback decryption, its bi_iter is
-	 * saved so that when we decrypt the bio later, we know what part of it
-	 * was marked for fallback decryption (when the bio is passed down after
-	 * blk_crypto_submit bio, it may be split or advanced so we cannot rely
-	 * on the bi_iter while decrypting in blk_crypto_endio)
-	 */
-	if (bio_crypt_fallback_crypted(bc))
-		return 0;
-
 	err = bio_crypt_check_alignment(bio);
 	if (err) {
 		bio->bi_status = BLK_STS_IOERR;
@@ -121,9 +112,10 @@ int blk_crypto_submit_bio(struct bio **bio_ptr)
 	}
 
 	/* Fallback to crypto API */
-	err = blk_crypto_fallback_submit_bio(bio_ptr);
-	if (err)
+	if (!blk_crypto_fallback_bio_prep(bio_ptr)) {
+		err = -EIO;
 		goto out;
+	}
 
 	return 0;
 out:
@@ -152,17 +144,6 @@ bool blk_crypto_endio(struct bio *bio)
 
 	if (!bc)
 		return true;
-
-	if (bio_crypt_fallback_crypted(bc)) {
-		/*
-		 * The only bios who's crypto is handled by the blk-crypto
-		 * fallback when they reach here are those with
-		 * bio_data_dir(bio) == READ, since WRITE bios that are
-		 * encrypted by the crypto API fallback are handled by
-		 * blk_crypto_encrypt_endio().
-		 */
-		return !blk_crypto_queue_decrypt_bio(bio);
-	}
 
 	if (bc->bc_keyslot >= 0)
 		bio_crypt_ctx_release_keyslot(bc);
@@ -304,3 +285,228 @@ int blk_crypto_evict_key(struct request_queue *q,
 	return blk_crypto_fallback_evict_key(key);
 }
 EXPORT_SYMBOL_GPL(blk_crypto_evict_key);
+
+int bio_crypt_ctx_init(void)
+{
+	return 0;
+}
+EXPORT_SYMBOL_GPL(bio_crypt_ctx_init);
+
+struct bio_crypt_ctx *bio_crypt_alloc_ctx(gfp_t gfp_mask)
+{
+	return kzalloc(sizeof(struct bio_crypt_ctx), gfp_mask);
+}
+EXPORT_SYMBOL_GPL(bio_crypt_alloc_ctx);
+
+void bio_crypt_ctx_release_keyslot(struct bio_crypt_ctx *bc)
+{
+	if (!bc || !bc->bc_ksm || bc->bc_keyslot < 0)
+		return;
+
+	keyslot_manager_put_slot(bc->bc_ksm, bc->bc_keyslot);
+	bc->bc_keyslot = -1;
+	bc->bc_ksm = NULL;
+}
+EXPORT_SYMBOL_GPL(bio_crypt_ctx_release_keyslot);
+
+int bio_crypt_ctx_acquire_keyslot(struct bio_crypt_ctx *bc,
+				  struct keyslot_manager *ksm)
+{
+	int slot;
+
+	if (!bc || !bc->bc_key || !ksm)
+		return -EINVAL;
+
+	if (bc->bc_ksm == ksm && bc->bc_keyslot >= 0)
+		return 0;
+
+	if (bc->bc_keyslot >= 0)
+		bio_crypt_ctx_release_keyslot(bc);
+
+	slot = keyslot_manager_get_slot_for_key(ksm, bc->bc_key);
+	if (slot < 0)
+		return slot;
+
+	bc->bc_keyslot = slot;
+	bc->bc_ksm = ksm;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(bio_crypt_ctx_acquire_keyslot);
+
+void bio_crypt_free_ctx(struct bio *bio)
+{
+	if (!bio || !bio->bi_crypt_context)
+		return;
+
+	bio_crypt_ctx_release_keyslot(bio->bi_crypt_context);
+	kfree(bio->bi_crypt_context);
+	bio->bi_crypt_context = NULL;
+}
+EXPORT_SYMBOL_GPL(bio_crypt_free_ctx);
+
+int bio_crypt_clone(struct bio *dst, struct bio *src, gfp_t gfp_mask)
+{
+	struct bio_crypt_ctx *src_bc = src->bi_crypt_context;
+	struct bio_crypt_ctx *dst_bc;
+
+	if (!src_bc)
+		return 0;
+
+	dst_bc = kmemdup(src_bc, sizeof(*dst_bc), gfp_mask);
+	if (!dst_bc)
+		return -ENOMEM;
+
+	if (dst_bc->bc_ksm && dst_bc->bc_keyslot >= 0)
+		keyslot_manager_get_slot(dst_bc->bc_ksm, dst_bc->bc_keyslot);
+
+	dst->bi_crypt_context = dst_bc;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(bio_crypt_clone);
+
+bool bio_crypt_ctx_compatible(struct bio *b_1, struct bio *b_2)
+{
+	struct bio_crypt_ctx *bc1 = b_1->bi_crypt_context;
+	struct bio_crypt_ctx *bc2 = b_2->bi_crypt_context;
+
+	if (!bc1 && !bc2)
+		return true;
+	if (!bc1 || !bc2)
+		return false;
+
+	if (bc1->bc_key != bc2->bc_key)
+		return false;
+
+	return !memcmp(bc1->bc_dun, bc2->bc_dun, sizeof(bc1->bc_dun));
+}
+EXPORT_SYMBOL_GPL(bio_crypt_ctx_compatible);
+
+bool bio_crypt_ctx_mergeable(struct bio_crypt_ctx *bc1, unsigned int bc1_bytes,
+			     struct bio_crypt_ctx *bc2)
+{
+	if (!bc1 && !bc2)
+		return true;
+	if (!bc1 || !bc2)
+		return false;
+	if (bc1->bc_key != bc2->bc_key)
+		return false;
+
+	return bio_crypt_dun_is_contiguous(bc1, bc1_bytes, bc2->bc_dun);
+}
+EXPORT_SYMBOL_GPL(bio_crypt_ctx_mergeable);
+
+bool bio_crypt_rq_ctx_compatible(struct request *rq, struct bio *bio)
+{
+	if (!rq->crypt_ctx && !bio_has_crypt_ctx(bio))
+		return true;
+	if (!rq->crypt_ctx || !bio_has_crypt_ctx(bio))
+		return false;
+
+	return rq->crypt_ctx->bc_key == bio->bi_crypt_context->bc_key;
+}
+EXPORT_SYMBOL_GPL(bio_crypt_rq_ctx_compatible);
+
+bool bio_crypt_should_process(struct request *rq)
+{
+	return rq && rq->crypt_ctx;
+}
+EXPORT_SYMBOL_GPL(bio_crypt_should_process);
+
+bool __blk_crypto_bio_prep(struct bio **bio_ptr)
+{
+	return blk_crypto_submit_bio(bio_ptr) == 0;
+}
+EXPORT_SYMBOL_GPL(__blk_crypto_bio_prep);
+
+static inline struct blk_ksm_keyslot *blk_crypto_encode_slot(unsigned int slot)
+{
+	return (struct blk_ksm_keyslot *)(unsigned long)(slot + 1);
+}
+
+static inline unsigned int blk_crypto_decode_slot(struct blk_ksm_keyslot *slot)
+{
+	return (unsigned int)((unsigned long)slot - 1);
+}
+
+blk_status_t __blk_crypto_rq_get_keyslot(struct request *rq)
+{
+	int err;
+
+	if (!rq->crypt_ctx)
+		return BLK_STS_OK;
+
+	if (rq->crypt_keyslot)
+		return BLK_STS_OK;
+
+	err = bio_crypt_ctx_acquire_keyslot(rq->crypt_ctx, rq->q->ksm);
+	if (err)
+		return errno_to_blk_status(err);
+
+	rq->crypt_keyslot = blk_crypto_encode_slot(rq->crypt_ctx->bc_keyslot);
+	return BLK_STS_OK;
+}
+EXPORT_SYMBOL_GPL(__blk_crypto_rq_get_keyslot);
+
+void __blk_crypto_rq_put_keyslot(struct request *rq)
+{
+	unsigned int slot;
+
+	if (!rq->crypt_keyslot || !rq->crypt_ctx || !rq->crypt_ctx->bc_ksm)
+		return;
+
+	slot = blk_crypto_decode_slot(rq->crypt_keyslot);
+	keyslot_manager_put_slot(rq->crypt_ctx->bc_ksm, slot);
+	rq->crypt_keyslot = NULL;
+	rq->crypt_ctx->bc_keyslot = -1;
+	rq->crypt_ctx->bc_ksm = NULL;
+}
+EXPORT_SYMBOL_GPL(__blk_crypto_rq_put_keyslot);
+
+void __blk_crypto_free_request(struct request *rq)
+{
+	if (!rq->crypt_ctx)
+		return;
+
+	__blk_crypto_rq_put_keyslot(rq);
+	kfree(rq->crypt_ctx);
+	rq->crypt_ctx = NULL;
+}
+EXPORT_SYMBOL_GPL(__blk_crypto_free_request);
+
+int __blk_crypto_rq_bio_prep(struct request *rq, struct bio *bio,
+			     gfp_t gfp_mask)
+{
+	if (!bio_has_crypt_ctx(bio))
+		return 0;
+
+	rq->crypt_ctx = kmemdup(bio->bi_crypt_context, sizeof(*rq->crypt_ctx),
+				gfp_mask);
+	if (!rq->crypt_ctx)
+		return -ENOMEM;
+
+	/*
+	 * Requests acquire and release their own keyslot lifetime.
+	 * Keep only the immutable key/DUN configuration when cloning.
+	 */
+	rq->crypt_ctx->bc_ksm = NULL;
+	rq->crypt_ctx->bc_keyslot = -1;
+	rq->crypt_keyslot = NULL;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(__blk_crypto_rq_bio_prep);
+
+bool blk_ksm_register(struct keyslot_manager *ksm, struct request_queue *q)
+{
+	if (q->ksm && q->ksm != ksm)
+		return false;
+
+	q->ksm = ksm;
+	return true;
+}
+EXPORT_SYMBOL_GPL(blk_ksm_register);
+
+void blk_ksm_unregister(struct request_queue *q)
+{
+	q->ksm = NULL;
+}
+EXPORT_SYMBOL_GPL(blk_ksm_unregister);

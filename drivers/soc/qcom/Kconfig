@@ -284,6 +284,7 @@ config QCOM_PM
 config MSM_PIL
 	tristate "Peripheral image loader"
 	select FW_LOADER
+	depends on QCOM_SMEM
 	help
 	  Some peripherals' firmware need to be loaded into memory before
 	  they can be brought out of reset. The Peripheral Image Loader (PIL)
@@ -296,6 +297,8 @@ config MSM_PIL
 
 config MSM_SUBSYSTEM_RESTART
 	tristate "MSM Subsystem Restart"
+	depends on ARCH_QCOM || COMPILE_TEST
+	depends on QCOM_SMEM
 	select MSM_PIL
 	select QCOM_QMI_HELPERS
 	help
@@ -898,6 +901,7 @@ config QTI_PLH_SCMI_CLIENT
 config QTI_HW_MEMLAT
 	tristate "Qualcomm Technologies Inc. RIMPS memlat interface driver"
 	depends on PERF_EVENTS
+	depends on QTI_SCMI_MEMLAT_PROTOCOL
 	default n
 	help
 	  Interface driver between RIMPS memlat and userspace.
@@ -921,6 +925,7 @@ config QTI_HW_NUM_PMU
 config QTI_HW_MEMLAT_SCMI_CLIENT
 	tristate "Qualcomm Technologies Inc. SCMI client driver for HW MEMLAT"
 	depends on QTI_HW_MEMLAT
+	depends on QTI_SCMI_MEMLAT_PROTOCOL
 	default n
 	help
 	  SCMI client driver registers itself with SCMI framework for memlat
@@ -979,6 +984,7 @@ endif # MSM_PM || MSM_PM_LEGACY
 
 config QTI_RPM_STATS_LOG
 	tristate "Qualcomm Technologies RPM Stats Driver"
+	depends on QCOM_SMEM
 	help
 	  This option enables a driver which reads RPM messages from a shared
 	  memory location. These messages provide statistical information about

@@ -270,8 +270,26 @@ extern unsigned int kobjsize(const void *objp);
 #define VM_MAYEXEC	0x00000040
 #define VM_MAYSHARE	0x00000080
 
+/*
+ * True for mappings that are shared and may eventually become writable.
+ * This intentionally checks VM_MAYWRITE rather than VM_WRITE.
+ */
+static inline bool vma_is_shared_maywrite(const struct vm_area_struct *vma)
+{
+	return (vma->vm_flags & (VM_SHARED | VM_MAYWRITE)) ==
+	       (VM_SHARED | VM_MAYWRITE);
+}
+
 #define VM_GROWSDOWN	0x00000100	/* general info on the segment */
 #define VM_UFFD_MISSING	0x00000200	/* missing pages tracking */
+/*
+ * Some trees backport userfaultfd minor-fault support helpers without adding
+ * the corresponding vm_flag bit. Keep callers buildable by treating it as
+ * unsupported in that case.
+ */
+#ifndef VM_UFFD_MINOR
+#define VM_UFFD_MINOR	VM_NONE
+#endif
 #define VM_PFNMAP	0x00000400	/* Page-ranges managed without "struct page", just pure PFN */
 #define VM_DENYWRITE	0x00000800	/* ETXTBSY on write attempts.. */
 #define VM_UFFD_WP	0x00001000	/* wrprotect pages tracking */
@@ -419,6 +437,14 @@ extern pgprot_t protection_map[16];
 	{ FAULT_FLAG_USER,		"USER" }, \
 	{ FAULT_FLAG_REMOTE,		"REMOTE" }, \
 	{ FAULT_FLAG_INSTRUCTION,	"INSTRUCTION" }
+
+/*
+ * True only on the first retryable fault attempt.
+ */
+static inline bool fault_flag_allow_retry_first(unsigned int flags)
+{
+	return (flags & FAULT_FLAG_ALLOW_RETRY) && !(flags & FAULT_FLAG_TRIED);
+}
 
 /*
  * vm_fault is filled by the the pagefault handler and passed to the vma's
@@ -3111,6 +3137,14 @@ static inline int seal_check_future_write(int seals, struct vm_area_struct *vma)
 	}
 
 	return 0;
+}
+
+static inline int seal_check_write(int seals, struct vm_area_struct *vma)
+{
+	if (seals & F_SEAL_WRITE)
+		return -EPERM;
+
+	return seal_check_future_write(seals, vma);
 }
 
 #endif /* __KERNEL__ */

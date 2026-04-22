@@ -187,12 +187,12 @@ static void select_policy(struct f2fs_sb_info *sbi, int gc_type,
 
 	if (p->alloc_mode == SSR) {
 		p->gc_mode = GC_GREEDY;
-		p->dirty_segmap = dirty_i->dirty_segmap[type];
+		p->dirty_bitmap = dirty_i->dirty_segmap[type];
 		p->max_search = dirty_i->nr_dirty[type];
 		p->ofs_unit = 1;
 	} else {
 		p->gc_mode = select_gc_type(sbi, gc_type);
-		p->dirty_segmap = dirty_i->dirty_segmap[DIRTY];
+		p->dirty_bitmap = dirty_i->dirty_segmap[DIRTY];
 		p->max_search = dirty_i->nr_dirty[DIRTY];
 		p->ofs_unit = sbi->segs_per_sec;
 	}
@@ -313,7 +313,8 @@ static unsigned int count_bits(const unsigned long *addr,
  * which has minimum valid blocks and removes it from dirty seglist.
  */
 static int get_victim_by_default(struct f2fs_sb_info *sbi,
-		unsigned int *result, int gc_type, int type, char alloc_mode)
+		unsigned int *result, int gc_type, int type, char alloc_mode,
+		unsigned long long age)
 {
 	struct dirty_seglist_info *dirty_i = DIRTY_I(sbi);
 	struct sit_info *sm = SIT_I(sbi);
@@ -324,6 +325,7 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 
 	mutex_lock(&dirty_i->seglist_lock);
 	last_segment = MAIN_SECS(sbi) * sbi->segs_per_sec;
+	(void)age;
 
 	p.alloc_mode = alloc_mode;
 	select_policy(sbi, gc_type, type, &p);
@@ -368,7 +370,7 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 		unsigned long cost;
 		unsigned int segno;
 
-		segno = find_next_bit(p.dirty_segmap, last_segment, p.offset);
+		segno = find_next_bit(p.dirty_bitmap, last_segment, p.offset);
 		if (segno >= last_segment) {
 			if (sm->last_victim[p.gc_mode]) {
 				last_segment =
@@ -383,7 +385,7 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 		p.offset = segno + p.ofs_unit;
 		if (p.ofs_unit > 1) {
 			p.offset -= segno % p.ofs_unit;
-			nsearched += count_bits(p.dirty_segmap,
+			nsearched += count_bits(p.dirty_bitmap,
 						p.offset - p.ofs_unit,
 						p.ofs_unit);
 		} else {
@@ -406,7 +408,7 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 			goto next;
 		/* Don't touch checkpointed data */
 		if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED) &&
-					get_ckpt_valid_blocks(sbi, segno) &&
+					get_ckpt_valid_blocks(sbi, segno, false) &&
 					p.alloc_mode != SSR))
 			goto next;
 		if (gc_type == BG_GC && test_bit(secno, dirty_i->victim_secmap))
@@ -1187,7 +1189,7 @@ static int __get_victim(struct f2fs_sb_info *sbi, unsigned int *victim,
 
 	down_write(&sit_i->sentry_lock);
 	ret = DIRTY_I(sbi)->v_ops->get_victim(sbi, victim, gc_type,
-					      NO_CHECK_TYPE, LFS);
+					      NO_CHECK_TYPE, LFS, 0);
 	up_write(&sit_i->sentry_lock);
 	return ret;
 }

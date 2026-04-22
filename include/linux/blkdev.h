@@ -44,7 +44,7 @@ struct pr_ops;
 struct rq_qos;
 struct blk_queue_stats;
 struct blk_stat_callback;
-struct blk_keyslot_manager;
+struct keyslot_manager;
 
 #define BLKDEV_MIN_RQ	4
 #define BLKDEV_MAX_RQ	128	/* Default maximum */
@@ -496,7 +496,7 @@ struct request_queue {
 
 #ifdef CONFIG_BLK_INLINE_ENCRYPTION
 	/* Inline crypto capabilities */
-	struct blk_keyslot_manager *ksm;
+	struct keyslot_manager *ksm;
 #endif
 
 	unsigned int		rq_timeout;
@@ -1748,13 +1748,13 @@ static inline struct bio_vec *rq_integrity_vec(struct request *rq)
 
 #ifdef CONFIG_BLK_INLINE_ENCRYPTION
 
-bool blk_ksm_register(struct blk_keyslot_manager *ksm, struct request_queue *q);
+bool blk_ksm_register(struct keyslot_manager *ksm, struct request_queue *q);
 
 void blk_ksm_unregister(struct request_queue *q);
 
 #else /* CONFIG_BLK_INLINE_ENCRYPTION */
 
-static inline bool blk_ksm_register(struct blk_keyslot_manager *ksm,
+static inline bool blk_ksm_register(struct keyslot_manager *ksm,
 				    struct request_queue *q)
 {
 	return true;

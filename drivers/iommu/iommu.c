@@ -1974,7 +1974,7 @@ int iommu_map(struct iommu_domain *domain, unsigned long iova,
 	}
 
 	if (ops->iotlb_sync_map)
-		ops->iotlb_sync_map(domain);
+		ops->iotlb_sync_map(domain, orig_iova, orig_size);
 
 	/* unroll mapping in case something went wrong */
 	if (ret)

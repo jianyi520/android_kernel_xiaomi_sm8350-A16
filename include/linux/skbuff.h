@@ -1652,6 +1652,15 @@ static inline int skb_unclone(struct sk_buff *skb, gfp_t pri)
 	return 0;
 }
 
+/*
+ * Compatibility helper for trees that call the newer helper name.
+ * In this tree, skb_unclone() already preserves skb invariants.
+ */
+static inline int skb_unclone_keeptruesize(struct sk_buff *skb, gfp_t pri)
+{
+	return skb_unclone(skb, pri);
+}
+
 /**
  *	skb_header_cloned - is the header a clone
  *	@skb: buffer to check
@@ -2524,6 +2533,12 @@ static inline unsigned char *skb_transport_header(const struct sk_buff *skb)
 static inline void skb_reset_transport_header(struct sk_buff *skb)
 {
 	skb->transport_header = skb->data - skb->head;
+}
+
+static inline bool skb_reset_transport_header_careful(struct sk_buff *skb)
+{
+	skb_reset_transport_header(skb);
+	return true;
 }
 
 static inline void skb_set_transport_header(struct sk_buff *skb,

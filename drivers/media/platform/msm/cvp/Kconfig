@@ -5,6 +5,7 @@
 
 menuconfig MSM_CVP
 	tristate "MSM CVP driver"
-        help
-          Enable support of MSM CVP driver for
-          Qualcomm Technologies, Inc.
+	depends on MSM_GLOBAL_SYNX
+	help
+	  Enable support of MSM CVP driver for
+	  Qualcomm Technologies, Inc.

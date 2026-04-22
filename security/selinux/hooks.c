@@ -3000,7 +3000,11 @@ static int selinux_inode_init_security_anon(struct inode *inode,
 		isec->sclass = context_isec->sclass;
 		isec->sid = context_isec->sid;
 	} else {
+#ifdef SECCLASS_ANON_INODE
 		isec->sclass = SECCLASS_ANON_INODE;
+#else
+		isec->sclass = SECCLASS_FILE;
+#endif
 		rc = security_transition_sid(
 			&selinux_state, tsec->sid, tsec->sid,
 			isec->sclass, name, &isec->sid);

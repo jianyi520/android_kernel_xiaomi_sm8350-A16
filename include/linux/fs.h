@@ -1005,7 +1005,7 @@ struct file {
 	struct address_space	*f_mapping;
 	errseq_t		f_wb_err;
 
-	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_USE(1, errseq_t f_sb_err);
 	ANDROID_VENDOR_DATA(1);
 } __randomize_layout
   __attribute__((aligned(4)));	/* lest something weird decides that 2 is OK */
@@ -1610,7 +1610,7 @@ struct super_block {
 	spinlock_t		s_inode_wblist_lock;
 	struct list_head	s_inodes_wb;	/* writeback inodes */
 
-	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_USE(1, errseq_t s_wb_err);
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
@@ -2918,6 +2918,14 @@ static inline errseq_t filemap_sample_wb_err(struct address_space *mapping)
 	return errseq_sample(&mapping->wb_err);
 }
 
+/*
+ * Sample the superblock writeback error cursor at open time.
+ */
+static inline errseq_t file_sample_sb_err(struct file *file)
+{
+	return errseq_sample(&file_inode(file)->i_sb->s_wb_err);
+}
+
 static inline int filemap_nr_thps(struct address_space *mapping)
 {
 #ifdef CONFIG_READ_ONLY_THP_FOR_FS
@@ -2973,7 +2981,7 @@ static inline ssize_t generic_write_sync(struct kiocb *iocb, ssize_t count)
 extern void emergency_sync(void);
 extern void emergency_remount(void);
 #ifdef CONFIG_BLOCK
-extern sector_t bmap(struct inode *, sector_t);
+extern int bmap(struct inode *, sector_t *);
 #endif
 extern int notify_change(struct dentry *, struct iattr *, struct inode **);
 extern int inode_permission(struct inode *, int);
@@ -3517,6 +3525,12 @@ static inline int iocb_flags(struct file *file)
 	if (file->f_flags & __O_SYNC)
 		res |= IOCB_SYNC;
 	return res;
+}
+
+static inline rwf_t iocb_to_rw_flags(int kiocb_flags, int mask)
+{
+	return (__force rwf_t)(kiocb_flags & mask &
+			       (__force int)RWF_SUPPORTED);
 }
 
 static inline int kiocb_set_rw_flags(struct kiocb *ki, rwf_t flags)

@@ -99,11 +99,8 @@ struct inode *ubifs_new_inode(struct ubifs_info *c, struct inode *dir,
 			 current_time(inode);
 	inode->i_mapping->nrpages = 0;
 
-	err = fscrypt_prepare_new_inode(dir, inode, &encrypted);
-	if (err) {
-		ubifs_err(c, "fscrypt_prepare_new_inode failed: %i", err);
-		goto out_iput;
-	}
+	encrypted = IS_ENCRYPTED(dir) ||
+		    fscrypt_get_dummy_context(c->vfs_sb) != NULL;
 
 	switch (mode & S_IFMT) {
 	case S_IFREG:
@@ -162,9 +159,9 @@ struct inode *ubifs_new_inode(struct ubifs_info *c, struct inode *dir,
 	spin_unlock(&c->cnt_lock);
 
 	if (encrypted) {
-		err = fscrypt_set_context(inode, NULL);
+		err = fscrypt_inherit_context(dir, inode, NULL, false);
 		if (err) {
-			ubifs_err(c, "fscrypt_set_context failed: %i", err);
+			ubifs_err(c, "fscrypt_inherit_context failed: %i", err);
 			goto out_iput;
 		}
 	}
@@ -525,7 +522,7 @@ static int ubifs_readdir(struct file *file, struct dir_context *ctx)
 		if (err)
 			return err;
 
-		err = fscrypt_fname_alloc_buffer(UBIFS_MAX_NLEN, &fstr);
+		err = fscrypt_fname_alloc_buffer(dir, UBIFS_MAX_NLEN, &fstr);
 		if (err)
 			return err;
 

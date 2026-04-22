@@ -220,7 +220,8 @@ struct scmi_reset_ops {
 	ANDROID_KABI_RESERVE(1);
 };
 
-#ifdef CONFIG_QTI_SCMI_MEMLAT_PROTOCOL
+#if defined(CONFIG_QTI_SCMI_MEMLAT_PROTOCOL) || \
+	defined(CONFIG_QTI_SCMI_MEMLAT_PROTOCOL_MODULE)
 /**
  * struct scmi_memlat_vendor_ops - represents the various operations provided
  *	by SCMI HW Memlat Protocol
@@ -279,7 +280,8 @@ struct scmi_memlat_vendor_ops {
 };
 #endif
 
-#ifdef CONFIG_QTI_SCMI_PLH_PROTOCOL
+#if defined(CONFIG_QTI_SCMI_PLH_PROTOCOL) || \
+	defined(CONFIG_QTI_SCMI_PLH_PROTOCOL_MODULE)
 /**
  * struct scmi_plh_vendor_ops - represents the various operations provided
  *	by SCMI PLH Protocol
@@ -328,10 +330,12 @@ struct scmi_handle {
 	struct scmi_power_ops *power_ops;
 	struct scmi_sensor_ops *sensor_ops;
 	struct scmi_reset_ops *reset_ops;
-#ifdef CONFIG_QTI_SCMI_MEMLAT_PROTOCOL
+#if defined(CONFIG_QTI_SCMI_MEMLAT_PROTOCOL) || \
+	defined(CONFIG_QTI_SCMI_MEMLAT_PROTOCOL_MODULE)
 	struct scmi_memlat_vendor_ops *memlat_ops;
 #endif
-#ifdef CONFIG_QTI_SCMI_PLH_PROTOCOL
+#if defined(CONFIG_QTI_SCMI_PLH_PROTOCOL) || \
+	defined(CONFIG_QTI_SCMI_PLH_PROTOCOL_MODULE)
 	struct scmi_plh_vendor_ops *plh_ops;
 #endif
 	/* for protocol internal use */
@@ -352,10 +356,12 @@ enum scmi_std_protocol {
 	SCMI_PROTOCOL_CLOCK = 0x14,
 	SCMI_PROTOCOL_SENSOR = 0x15,
 	SCMI_PROTOCOL_RESET = 0x16,
-#ifdef CONFIG_QTI_SCMI_MEMLAT_PROTOCOL
+#if defined(CONFIG_QTI_SCMI_MEMLAT_PROTOCOL) || \
+	defined(CONFIG_QTI_SCMI_MEMLAT_PROTOCOL_MODULE)
 	SCMI_PROTOCOL_MEMLAT = 0x80,
 #endif
-#ifdef CONFIG_QTI_SCMI_PLH_PROTOCOL
+#if defined(CONFIG_QTI_SCMI_PLH_PROTOCOL) || \
+	defined(CONFIG_QTI_SCMI_PLH_PROTOCOL_MODULE)
 	SCMI_PROTOCOL_PLH = 0x81,
 #endif
 };

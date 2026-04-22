@@ -105,20 +105,6 @@ static inline bool blk_crypto_rq_has_keyslot(struct request *rq)
 
 #endif /* CONFIG_BLK_INLINE_ENCRYPTION */
 
-void __bio_crypt_advance(struct bio *bio, unsigned int bytes);
-static inline void bio_crypt_advance(struct bio *bio, unsigned int bytes)
-{
-	if (bio_has_crypt_ctx(bio))
-		__bio_crypt_advance(bio, bytes);
-}
-
-void __bio_crypt_free_ctx(struct bio *bio);
-static inline void bio_crypt_free_ctx(struct bio *bio)
-{
-	if (bio_has_crypt_ctx(bio))
-		__bio_crypt_free_ctx(bio);
-}
-
 static inline void bio_crypt_do_front_merge(struct request *rq,
 					    struct bio *bio)
 {

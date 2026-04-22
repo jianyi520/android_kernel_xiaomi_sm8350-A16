@@ -19,7 +19,8 @@ struct system_pm_ops {
 	bool (*sleep_allowed)(void);
 };
 
-#if defined(CONFIG_MSM_PM) || defined(CONFIG_MSM_PM_LEGACY)
+#if (defined(CONFIG_MSM_PM) && defined(CONFIG_ARM_QCOM_LPM_CPUIDLE)) || \
+	defined(CONFIG_MSM_PM_LEGACY)
 uint32_t register_system_pm_ops(struct system_pm_ops *pm_ops);
 void update_ipi_history(int cpu);
 #else

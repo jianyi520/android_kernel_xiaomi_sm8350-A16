@@ -89,7 +89,7 @@ int fscrypt_fname_encrypt(const struct inode *inode, const struct qstr *iname,
 	struct skcipher_request *req = NULL;
 	DECLARE_CRYPTO_WAIT(wait);
 	const struct fscrypt_info *ci = inode->i_crypt_info;
-	struct crypto_skcipher *tfm = ci->ci_enc_key.tfm;
+	struct crypto_skcipher *tfm = ci->ci_key.tfm;
 	union fscrypt_iv iv;
 	struct scatterlist sg;
 	int res;
@@ -145,7 +145,7 @@ static int fname_decrypt(const struct inode *inode,
 	DECLARE_CRYPTO_WAIT(wait);
 	struct scatterlist src_sg, dst_sg;
 	const struct fscrypt_info *ci = inode->i_crypt_info;
-	struct crypto_skcipher *tfm = ci->ci_enc_key.tfm;
+	struct crypto_skcipher *tfm = ci->ci_key.tfm;
 	union fscrypt_iv iv;
 	int res;
 
@@ -251,6 +251,7 @@ bool fscrypt_fname_encrypted_size(const union fscrypt_policy *policy,
 
 /**
  * fscrypt_fname_alloc_buffer() - allocate a buffer for presented filenames
+ * @inode: inode in whose context the buffer will be used
  * @max_encrypted_len: maximum length of encrypted filenames the buffer will be
  *		       used to present
  * @crypto_str: (output) buffer to allocate
@@ -260,11 +261,15 @@ bool fscrypt_fname_encrypted_size(const union fscrypt_policy *policy,
  *
  * Return: 0 on success, -errno on failure
  */
-int fscrypt_fname_alloc_buffer(u32 max_encrypted_len,
+int fscrypt_fname_alloc_buffer(const struct inode *inode,
+			       u32 max_encrypted_len,
 			       struct fscrypt_str *crypto_str)
 {
 	const u32 max_encoded_len = BASE64_CHARS(FSCRYPT_NOKEY_NAME_MAX);
 	u32 max_presented_len;
+
+	/* Currently unused, but kept for API compatibility across callers. */
+	(void)inode;
 
 	max_presented_len = max(max_encoded_len, max_encrypted_len);
 
@@ -399,7 +404,7 @@ int fscrypt_setup_filename(struct inode *dir, const struct qstr *iname,
 		fname->disk_name.len = iname->len;
 		return 0;
 	}
-	ret = fscrypt_get_encryption_info(dir, lookup);
+	ret = fscrypt_get_encryption_info(dir);
 	if (ret)
 		return ret;
 
@@ -559,7 +564,7 @@ int fscrypt_d_revalidate(struct dentry *dentry, unsigned int flags)
 	 * Pass allow_unsupported=true, so that files with an unsupported
 	 * encryption policy can be deleted.
 	 */
-	err = fscrypt_get_encryption_info(d_inode(dir), true);
+	err = fscrypt_get_encryption_info(d_inode(dir));
 	valid = !fscrypt_has_encryption_key(d_inode(dir));
 	dput(dir);
 

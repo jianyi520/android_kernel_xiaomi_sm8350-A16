@@ -297,8 +297,9 @@ void fscrypt_generate_iv(union fscrypt_iv *iv, u64 lblk_num,
 /* fname.c */
 int fscrypt_fname_encrypt(const struct inode *inode, const struct qstr *iname,
 			  u8 *out, unsigned int olen);
-bool fscrypt_fname_encrypted_size(const struct inode *inode, u32 orig_len,
-				  u32 max_len, u32 *encrypted_len_ret);
+bool fscrypt_fname_encrypted_size(const union fscrypt_policy *policy,
+				  u32 orig_len, u32 max_len,
+				  u32 *encrypted_len_ret);
 
 /* hkdf.c */
 
@@ -621,6 +622,7 @@ int fscrypt_setup_v1_file_key_via_subscribed_keyrings(struct fscrypt_info *ci);
 
 bool fscrypt_policies_equal(const union fscrypt_policy *policy1,
 			    const union fscrypt_policy *policy2);
+const union fscrypt_policy *fscrypt_policy_to_inherit(struct inode *dir);
 bool fscrypt_supported_policy(const union fscrypt_policy *policy_u,
 			      const struct inode *inode);
 int fscrypt_policy_from_context(union fscrypt_policy *policy_u,

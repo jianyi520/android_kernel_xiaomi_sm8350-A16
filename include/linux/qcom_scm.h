@@ -240,13 +240,13 @@ static inline int qcom_scm_sec_wdog_trigger(void) { return -ENODEV; }
 static inline int qcom_scm_tlb_conf_handler(unsigned long addr) { return -ENODEV; }
 #endif
 static inline void qcom_scm_disable_sdi(void) {}
-static inline u32 qcom_scm_set_remote_state(u32 state, u32 id)
+static inline int qcom_scm_set_remote_state(u32 state, u32 id)
 		{ return -ENODEV; }
 static inline int qcom_scm_spin_cpu(void) { return -ENODEV; }
 static inline void qcom_scm_set_download_mode(enum qcom_download_mode mode,
 		phys_addr_t tcsr_boot_misc) {}
 static inline int qcom_scm_get_download_mode(unsigned int *mode,
-		phys_addr_t tcsr_boot_misc) {}
+		phys_addr_t tcsr_boot_misc) { return -ENODEV; }
 static inline int qcom_scm_config_cpu_errata(void)
 		{ return -ENODEV; }
 static inline void qcom_scm_phy_update_scm_level_shifter(u32 val) {}
@@ -270,9 +270,9 @@ static inline int qcom_scm_io_writel(phys_addr_t addr, unsigned int val)
 static inline int qcom_scm_io_reset(void)
 		{ return -ENODEV; }
 static inline bool qcom_scm_is_secure_wdog_trigger_available(void)
-		{ return -ENODEV; }
+		{ return false; }
 static inline bool qcom_scm_is_mode_switch_available(void)
-		{ return -ENODEV; }
+		{ return false; }
 static inline int qcom_scm_get_jtag_etm_feat_id(u64 *version)
 		{ return -ENODEV; }
 static inline void qcom_scm_halt_spmi_pmic_arbiter(void) {}
@@ -353,13 +353,13 @@ static inline int qcom_scm_create_shm_bridge(u64 pfn_and_ns_perm_flags,
 			u64 ipfn_and_s_perm_flags, u64 size_and_flags,
 			u64 ns_vmids, u64 *handle) { return -ENODEV; }
 static inline bool qcom_scm_is_lmh_debug_set_available(void)
-			{ return -EINVAL; }
+			{ return false; }
 static inline bool qcom_scm_is_lmh_debug_read_buf_size_available(void)
-			{ return -EINVAL; }
+			{ return false; }
 static inline bool qcom_scm_is_lmh_debug_read_buf_available(void)
-			{ return -EINVAL; }
+			{ return false; }
 static inline bool qcom_scm_is_lmh_debug_get_type_available(void)
-			{ return -EINVAL; }
+			{ return false; }
 static inline int qcom_scm_lmh_read_buf_size(int *size) { return -ENODEV; }
 static inline int qcom_scm_lmh_limit_dcvsh(phys_addr_t payload,
 			uint32_t payload_size, u64 limit_node, uint32_t node_id,

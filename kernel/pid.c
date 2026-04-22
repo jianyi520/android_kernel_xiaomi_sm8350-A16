@@ -455,7 +455,7 @@ struct pid *find_ge_pid(int nr, struct pid_namespace *ns)
 	return idr_get_next(&ns->idr, &nr);
 }
 
-struct pid *pidfd_get_pid(unsigned int fd)
+struct pid *pidfd_get_pid(unsigned int fd, unsigned int *flags)
 {
 	struct fd f;
 	struct pid *pid;
@@ -467,6 +467,8 @@ struct pid *pidfd_get_pid(unsigned int fd)
 	pid = pidfd_pid(f.file);
 	if (!IS_ERR(pid))
 		get_pid(pid);
+	if (flags)
+		*flags = f.file->f_flags;
 
 	fdput(f);
 	return pid;

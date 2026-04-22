@@ -117,7 +117,7 @@ static inline bool bio_has_crypt_ctx(struct bio *bio)
 	return bio->bi_crypt_context;
 }
 
-void bio_crypt_clone(struct bio *dst, struct bio *src, gfp_t gfp_mask);
+int bio_crypt_clone(struct bio *dst, struct bio *src, gfp_t gfp_mask);
 
 static inline void bio_crypt_set_ctx(struct bio *bio,
 				     const struct blk_crypto_key *key,
@@ -185,8 +185,9 @@ static inline void bio_crypt_advance(struct bio *bio, unsigned int bytes)
 
 bool bio_crypt_ctx_compatible(struct bio *b_1, struct bio *b_2);
 
-bool bio_crypt_ctx_mergeable(struct bio *b_1, unsigned int b1_bytes,
-			     struct bio *b_2);
+bool bio_crypt_ctx_mergeable(struct bio_crypt_ctx *bc1,
+			     unsigned int bc1_bytes,
+			     struct bio_crypt_ctx *bc2);
 
 #else /* CONFIG_BLK_INLINE_ENCRYPTION */
 static inline int bio_crypt_ctx_init(void)
@@ -199,8 +200,11 @@ static inline bool bio_has_crypt_ctx(struct bio *bio)
 	return false;
 }
 
-static inline void bio_crypt_clone(struct bio *dst, struct bio *src,
-				   gfp_t gfp_mask) { }
+static inline int bio_crypt_clone(struct bio *dst, struct bio *src,
+				  gfp_t gfp_mask)
+{
+	return 0;
+}
 
 static inline void bio_crypt_free_ctx(struct bio *bio) { }
 
@@ -211,9 +215,9 @@ static inline bool bio_crypt_ctx_compatible(struct bio *b_1, struct bio *b_2)
 	return true;
 }
 
-static inline bool bio_crypt_ctx_mergeable(struct bio *b_1,
-					   unsigned int b1_bytes,
-					   struct bio *b_2)
+static inline bool bio_crypt_ctx_mergeable(struct bio_crypt_ctx *bc1,
+					   unsigned int bc1_bytes,
+					   struct bio_crypt_ctx *bc2)
 {
 	return true;
 }

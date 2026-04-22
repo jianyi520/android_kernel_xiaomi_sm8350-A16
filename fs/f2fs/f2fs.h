@@ -19,6 +19,7 @@
 #include <linux/sched.h>
 #include <linux/cred.h>
 #include <linux/vmalloc.h>
+#include <linux/llist.h>
 #include <linux/bio.h>
 #include <linux/blkdev.h>
 #include <linux/quotaops.h>
@@ -272,6 +273,31 @@ struct fsync_node_entry {
 	struct list_head list;	/* list head */
 	struct page *page;	/* warm node page pointer */
 	unsigned int seq_id;	/* sequence id */
+};
+
+/*
+ * Checkpoint merge request queue (newer F2FS trees).  Some downstream trees
+ * use this in checkpoint/debug paths; keep minimal definitions for
+ * compatibility when the rest of the tree doesn't declare them.
+ */
+struct ckpt_req {
+	struct llist_node llnode;
+	struct completion wait;
+	ktime_t queue_time;
+	int ret;
+};
+
+struct ckpt_req_control {
+	atomic_t issued_ckpt;
+	atomic_t total_ckpt;
+	atomic_t queued_ckpt;
+	unsigned int cur_time;
+	unsigned int peak_time;
+	spinlock_t stat_lock;
+	wait_queue_head_t ckpt_wait_queue;
+	struct llist_head issue_list;
+	struct task_struct *f2fs_issue_ckpt;
+	int ckpt_thread_ioprio;
 };
 
 /* for the bitmap indicate blocks to be discarded */
@@ -1012,6 +1038,21 @@ enum {
 	CURSEG_COLD_DATA_PINNED,/* cold data for pinned file */
 };
 
+/*
+ * Compatibility aliases for trees without full ATGC/persistent-log plumbing.
+ */
+#ifndef CURSEG_ALL_DATA_ATGC
+#define CURSEG_ALL_DATA_ATGC	CURSEG_COLD_DATA
+#endif
+
+#ifndef NR_PERSISTENT_LOG
+#define NR_PERSISTENT_LOG	(CURSEG_COLD_DATA_PINNED + 1)
+#endif
+
+#ifndef NR_CURSEG_PERSIST_TYPE
+#define NR_CURSEG_PERSIST_TYPE	NR_PERSISTENT_LOG
+#endif
+
 struct flush_cmd {
 	struct completion wait;
 	struct llist_node llnode;
@@ -1452,6 +1493,7 @@ struct f2fs_sb_info {
 	struct rw_semaphore node_write;		/* locking node writes */
 	struct rw_semaphore node_change;	/* locking node change */
 	wait_queue_head_t cp_wait;
+	struct ckpt_req_control cprc_info;
 	unsigned long last_time[MAX_TIME];	/* to store time in jiffies */
 	long interval_time[MAX_TIME];		/* to store thresholds */
 
@@ -2019,6 +2061,28 @@ static inline bool __allow_reserved_blocks(struct f2fs_sb_info *sbi,
 	return false;
 }
 
+static inline block_t get_available_block_count(struct f2fs_sb_info *sbi,
+						struct inode *inode, bool cap)
+{
+	block_t avail_user_block_count = sbi->user_block_count -
+						sbi->current_reserved_blocks;
+
+	if (!__allow_reserved_blocks(sbi, inode, cap))
+		avail_user_block_count -= F2FS_OPTION(sbi).root_reserved_blocks;
+
+	if (F2FS_IO_ALIGNED(sbi))
+		avail_user_block_count -= sbi->blocks_per_seg *
+				SM_I(sbi)->additional_reserved_segments;
+
+	if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED))) {
+		if (avail_user_block_count > sbi->unusable_block_count)
+			avail_user_block_count -= sbi->unusable_block_count;
+		else
+			avail_user_block_count = 0;
+	}
+	return avail_user_block_count;
+}
+
 static inline void f2fs_i_blocks_write(struct inode *, block_t, bool, bool);
 static inline int inc_valid_block_count(struct f2fs_sb_info *sbi,
 				 struct inode *inode, blkcnt_t *count)
@@ -2232,18 +2296,19 @@ static inline void *__bitmap_ptr(struct f2fs_sb_info *sbi, int flag)
 		 * if large_nat_bitmap feature is enabled, leave checksum
 		 * protection for all nat/sit bitmaps.
 		 */
-		return &ckpt->sit_nat_version_bitmap + offset + sizeof(__le32);
+		return (unsigned char *)ckpt->sit_nat_version_bitmap +
+				offset + sizeof(__le32);
 	}
 
 	if (__cp_payload(sbi) > 0) {
 		if (flag == NAT_BITMAP)
-			return &ckpt->sit_nat_version_bitmap;
+			return (unsigned char *)ckpt->sit_nat_version_bitmap;
 		else
 			return (unsigned char *)ckpt + F2FS_BLKSIZE;
 	} else {
 		offset = (flag == NAT_BITMAP) ?
 			le32_to_cpu(ckpt->sit_ver_bitmap_bytesize) : 0;
-		return &ckpt->sit_nat_version_bitmap + offset;
+		return (unsigned char *)ckpt->sit_nat_version_bitmap + offset;
 	}
 }
 
@@ -3183,6 +3248,31 @@ static inline void f2fs_clear_page_private(struct page *page)
 	f2fs_put_page(page, 0);
 }
 
+static inline void set_page_private_reference(struct page *page)
+{
+	unsigned long private;
+
+	if (!PagePrivate(page)) {
+		f2fs_set_page_private(page, 1);
+		return;
+	}
+	private = page_private(page);
+	set_page_private(page, private + 1);
+}
+
+static inline void clear_page_private_inline(struct page *page)
+{
+	unsigned long private;
+
+	if (!PagePrivate(page))
+		return;
+	private = page_private(page);
+	if (private <= 1)
+		f2fs_clear_page_private(page);
+	else
+		set_page_private(page, private - 1);
+}
+
 /*
  * file.c
  */
@@ -3423,6 +3513,8 @@ void f2fs_destroy_segment_manager_caches(void);
 int f2fs_rw_hint_to_seg_type(enum rw_hint hint);
 enum rw_hint f2fs_io_type_to_rw_hint(struct f2fs_sb_info *sbi,
 			enum page_type type, enum temp_type temp);
+static inline void f2fs_save_inmem_curseg(struct f2fs_sb_info *sbi) { }
+static inline void f2fs_restore_inmem_curseg(struct f2fs_sb_info *sbi) { }
 
 /*
  * checkpoint.c
@@ -3483,6 +3575,16 @@ void f2fs_flush_merged_writes(struct f2fs_sb_info *sbi);
 int f2fs_submit_page_bio(struct f2fs_io_info *fio);
 int f2fs_merge_page_bio(struct f2fs_io_info *fio);
 void f2fs_submit_page_write(struct f2fs_io_info *fio);
+
+/*
+ * Some branches keep extra I/O trace helpers in a local f2fs trace wrapper.
+ * Provide no-op fallbacks when those helpers are absent.
+ */
+static inline void f2fs_trace_ios(struct f2fs_io_info *fio, int flush) { }
+static inline void f2fs_build_trace_ios(void) { }
+static inline void f2fs_destroy_trace_ios(void) { }
+static inline void f2fs_trace_pid(struct page *page) { }
+
 struct block_device *f2fs_target_device(struct f2fs_sb_info *sbi,
 			block_t blk_addr, struct bio *bio);
 int f2fs_target_device_index(struct f2fs_sb_info *sbi, block_t blkaddr);
@@ -3575,6 +3677,8 @@ struct f2fs_stat_info {
 	int nr_discarding, nr_discarded;
 	int nr_discard_cmd;
 	unsigned int undiscard_blks;
+	int nr_issued_ckpt, nr_total_ckpt, nr_queued_ckpt;
+	unsigned int cur_ckpt_time, peak_ckpt_time;
 	int inline_xattr, inline_inode, inline_dir, append, update, orphans;
 	int compr_inode, compr_blocks;
 	int aw_cnt, max_aw_cnt, vw_cnt, max_vw_cnt;
@@ -3583,6 +3687,7 @@ struct f2fs_stat_info {
 	int util_free, util_valid, util_invalid;
 	int rsvd_segs, overp_segs;
 	int dirty_count, node_pages, meta_pages;
+	int compress_pages, compress_page_hit;
 	int prefree_count, call_count, cp_count, bg_cp_count;
 	int tot_segs, node_segs, data_segs, free_segs, free_secs;
 	int bg_node_segs, bg_data_segs;
@@ -3592,6 +3697,9 @@ struct f2fs_stat_info {
 	int curseg[NR_CURSEG_TYPE];
 	int cursec[NR_CURSEG_TYPE];
 	int curzone[NR_CURSEG_TYPE];
+	int dirty_seg[NO_CHECK_TYPE];
+	int full_seg[NO_CHECK_TYPE];
+	int valid_blks[NO_CHECK_TYPE];
 
 	unsigned int meta_count[META_MAX];
 	unsigned int segment_count[2];

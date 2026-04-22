@@ -13,6 +13,10 @@
 #define POLY1305_KEY_SIZE	32
 #define POLY1305_DIGEST_SIZE	16
 
+#ifndef CONFIG_CRYPTO_LIB_POLY1305_RSIZE
+#define CONFIG_CRYPTO_LIB_POLY1305_RSIZE 2
+#endif
+
 /* The poly1305_key and poly1305_state types are mostly opaque and
  * implementation-defined. Limbs might be in base 2^64 or base 2^26, or
  * different yet. The union type provided keeps these 64-bit aligned for the

@@ -126,6 +126,12 @@ void disable_discard(struct mapped_device *md);
 void disable_write_same(struct mapped_device *md);
 void disable_write_zeroes(struct mapped_device *md);
 
+#ifdef CONFIG_BLK_INLINE_ENCRYPTION
+void dm_destroy_keyslot_manager(struct keyslot_manager *ksm);
+#else
+static inline void dm_destroy_keyslot_manager(struct keyslot_manager *ksm) { }
+#endif
+
 static inline struct completion *dm_get_completion_from_kobject(struct kobject *kobj)
 {
 	return &container_of(kobj, struct dm_kobject_holder, kobj)->completion;

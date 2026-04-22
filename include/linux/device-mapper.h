@@ -243,6 +243,12 @@ struct target_type {
 #define dm_target_passes_integrity(type) ((type)->features & DM_TARGET_PASSES_INTEGRITY)
 
 /*
+ * A target can pass inline encryption capabilities to lower devices.
+ */
+#define DM_TARGET_PASSES_CRYPTO		0x00000080
+#define dm_target_passes_crypto(type) ((type)->features & DM_TARGET_PASSES_CRYPTO)
+
+/*
  * Indicates that a target supports host-managed zoned block devices.
  */
 #define DM_TARGET_ZONED_HM		0x00000040

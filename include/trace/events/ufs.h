@@ -224,10 +224,10 @@ DEFINE_EVENT(ufshcd_template, ufshcd_init,
 TRACE_EVENT(ufshcd_command,
 	TP_PROTO(const char *dev_name, const char *str, unsigned int tag,
 			u32 doorbell, int transfer_len, u32 intr, u64 lba,
-			u8 opcode, u8 group_id),
+			u8 opcode),
 
 	TP_ARGS(dev_name, str, tag, doorbell, transfer_len,
-				intr, lba, opcode, group_id),
+				intr, lba, opcode),
 
 	TP_STRUCT__entry(
 		__string(dev_name, dev_name)
@@ -238,7 +238,6 @@ TRACE_EVENT(ufshcd_command,
 		__field(u32, intr)
 		__field(u64, lba)
 		__field(u8, opcode)
-		__field(u8, group_id)
 	),
 
 	TP_fast_assign(
@@ -250,46 +249,14 @@ TRACE_EVENT(ufshcd_command,
 		__entry->intr = intr;
 		__entry->lba = lba;
 		__entry->opcode = opcode;
-		__entry->group_id = group_id;
 	),
 
 	TP_printk(
-		"%s: %s: tag: %u, DB: 0x%x, size: %d, IS: %u, LBA: %llu, opcode: 0x%x (%s), group_id: 0x%x",
+		"%s: %s: tag: %u, DB: 0x%x, size: %d, IS: %u, LBA: %llu, opcode: 0x%x (%s)",
 		__get_str(str), __get_str(dev_name), __entry->tag,
 		__entry->doorbell, __entry->transfer_len,
 		__entry->intr, __entry->lba, (u32)__entry->opcode,
-		str_opcode(__entry->opcode), (u32)__entry->group_id
-	)
-);
-
-TRACE_EVENT(ufshcd_uic_command,
-	TP_PROTO(const char *dev_name, const char *str, u32 cmd,
-		 u32 arg1, u32 arg2, u32 arg3),
-
-	TP_ARGS(dev_name, str, cmd, arg1, arg2, arg3),
-
-	TP_STRUCT__entry(
-		__string(dev_name, dev_name)
-		__string(str, str)
-		__field(u32, cmd)
-		__field(u32, arg1)
-		__field(u32, arg2)
-		__field(u32, arg3)
-	),
-
-	TP_fast_assign(
-		__assign_str(dev_name, dev_name);
-		__assign_str(str, str);
-		__entry->cmd = cmd;
-		__entry->arg1 = arg1;
-		__entry->arg2 = arg2;
-		__entry->arg3 = arg3;
-	),
-
-	TP_printk(
-		"%s: %s: cmd: 0x%x, arg1: 0x%x, arg2: 0x%x, arg3: 0x%x",
-		__get_str(str), __get_str(dev_name), __entry->cmd,
-		__entry->arg1, __entry->arg2, __entry->arg3
+		str_opcode(__entry->opcode)
 	)
 );
 

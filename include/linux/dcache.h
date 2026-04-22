@@ -224,6 +224,9 @@ struct dentry_operations {
 #define DCACHE_NOKEY_NAME		0x02000000 /* Encrypted name encoded without key */
 #define DCACHE_OP_REAL			0x04000000
 
+/* Compatibility alias kept for mixed fscrypt backports. */
+#define DCACHE_ENCRYPTED_NAME		DCACHE_NOKEY_NAME
+
 #define DCACHE_PAR_LOOKUP		0x10000000 /* being looked up (with parent locked shared) */
 #define DCACHE_DENTRY_CURSOR		0x20000000
 #define DCACHE_NORCU			0x40000000 /* No RCU delay for freeing */

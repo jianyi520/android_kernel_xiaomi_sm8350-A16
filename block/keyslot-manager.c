@@ -624,6 +624,66 @@ void keyslot_manager_intersect_modes(struct keyslot_manager *parent,
 }
 EXPORT_SYMBOL_GPL(keyslot_manager_intersect_modes);
 
+bool keyslot_manager_is_superset(const struct keyslot_manager *ksm_superset,
+				 const struct keyslot_manager *ksm_subset)
+{
+	unsigned int i;
+
+	if (!ksm_subset)
+		return true;
+	if (!ksm_superset)
+		return false;
+	if ((ksm_superset->features & ksm_subset->features) !=
+	    ksm_subset->features)
+		return false;
+	if (ksm_superset->max_dun_bytes_supported <
+	    ksm_subset->max_dun_bytes_supported)
+		return false;
+
+	for (i = 0; i < ARRAY_SIZE(ksm_subset->crypto_mode_supported); i++) {
+		if ((ksm_superset->crypto_mode_supported[i] &
+		     ksm_subset->crypto_mode_supported[i]) !=
+		    ksm_subset->crypto_mode_supported[i])
+			return false;
+	}
+	return true;
+}
+EXPORT_SYMBOL_GPL(keyslot_manager_is_superset);
+
+void keyslot_manager_update_capabilities(struct keyslot_manager *target,
+					 const struct keyslot_manager *source)
+{
+	unsigned int i;
+
+	if (!target || !source)
+		return;
+
+	target->features |= source->features;
+	if (target->max_dun_bytes_supported < source->max_dun_bytes_supported)
+		target->max_dun_bytes_supported =
+			source->max_dun_bytes_supported;
+
+	for (i = 0; i < ARRAY_SIZE(target->crypto_mode_supported); i++)
+		target->crypto_mode_supported[i] |=
+			source->crypto_mode_supported[i];
+}
+EXPORT_SYMBOL_GPL(keyslot_manager_update_capabilities);
+
+bool keyslot_manager_is_empty(const struct keyslot_manager *ksm)
+{
+	unsigned int i;
+
+	if (!ksm)
+		return true;
+
+	for (i = 0; i < ARRAY_SIZE(ksm->crypto_mode_supported); i++) {
+		if (ksm->crypto_mode_supported[i])
+			return false;
+	}
+	return true;
+}
+EXPORT_SYMBOL_GPL(keyslot_manager_is_empty);
+
 /**
  * keyslot_manager_derive_raw_secret() - Derive software secret from wrapped key
  * @ksm: The keyslot manager

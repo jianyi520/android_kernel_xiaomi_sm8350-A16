@@ -846,11 +846,9 @@ struct inode *__ext4_new_inode(handle_t *handle, struct inode *dir,
 	else
 		ei->i_projid = make_kprojid(&init_user_ns, EXT4_DEF_PROJID);
 
-	if (!(i_flags & EXT4_EA_INODE_FL)) {
-		err = fscrypt_prepare_new_inode(dir, inode, &encrypt);
-		if (err)
-			goto out;
-	}
+	if (!(i_flags & EXT4_EA_INODE_FL))
+		encrypt = IS_ENCRYPTED(dir) ||
+			  fscrypt_get_dummy_context(sb) != NULL;
 
 	err = dquot_initialize(inode);
 	if (err)
@@ -1157,7 +1155,7 @@ got:
 	 * prevent its deduplication.
 	 */
 	if (encrypt) {
-		err = fscrypt_set_context(inode, handle);
+		err = fscrypt_inherit_context(dir, inode, handle, false);
 		if (err)
 			goto fail_free_drop;
 	}

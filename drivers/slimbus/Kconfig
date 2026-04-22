@@ -43,6 +43,7 @@ config SLIMBUS_MSM_CTRL
 
 config SLIMBUS_MSM_NGD
 	tristate "QTI Slimbus Satellite Component"
+	depends on QCOM_QMI_HELPERS
 	help
 	  Select driver for Qualcomm Technologies, Inc. (QTI) Slimbus
 	  Satellite Component. This is light-weight slimbus controller

@@ -82,8 +82,14 @@ enum ipi_msg_type {
 	IPI_CPU_CRASH_STOP,
 	IPI_TIMER,
 	IPI_IRQ_WORK,
-	IPI_WAKEUP
+	IPI_WAKEUP,
+	NR_IPI
 };
+
+struct ipi_stats {
+	unsigned int count[NR_IPI];
+};
+static DEFINE_PER_CPU(struct ipi_stats, ipi_stats);
 
 #ifdef CONFIG_HOTPLUG_CPU
 static int op_cpu_kill(unsigned int cpu);
@@ -808,7 +814,7 @@ void show_ipi_list(struct seq_file *p, int prec)
 			   prec >= 4 ? " " : "");
 		for_each_online_cpu(cpu)
 			seq_printf(p, "%10u ",
-				   __get_irq_stat(cpu, ipi_irqs[i]));
+				   per_cpu(ipi_stats, cpu).count[i]);
 		seq_printf(p, "      %s\n", ipi_types[i]);
 	}
 }
@@ -819,7 +825,7 @@ u64 smp_irq_stat_cpu(unsigned int cpu)
 	int i;
 
 	for (i = 0; i < NR_IPI; i++)
-		sum += __get_irq_stat(cpu, ipi_irqs[i]);
+		sum += per_cpu(ipi_stats, cpu).count[i];
 
 	return sum;
 }
@@ -919,7 +925,7 @@ void handle_IPI(int ipinr, struct pt_regs *regs)
 
 	if ((unsigned)ipinr < NR_IPI) {
 		trace_ipi_entry_rcuidle(ipi_types[ipinr]);
-		__inc_irq_stat(cpu, ipi_irqs[ipinr]);
+		this_cpu_inc(ipi_stats.count[ipinr]);
 	}
 
 	switch (ipinr) {

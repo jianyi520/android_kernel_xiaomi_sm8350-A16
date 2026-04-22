@@ -438,6 +438,18 @@ static inline unsigned int find_next_inuse(struct free_segmap_info *free_i,
 	return ret;
 }
 
+static inline unsigned int f2fs_usable_segs_in_sec(struct f2fs_sb_info *sbi,
+						    unsigned int segno)
+{
+	return sbi->segs_per_sec;
+}
+
+static inline unsigned int f2fs_usable_blks_in_seg(struct f2fs_sb_info *sbi,
+						    unsigned int segno)
+{
+	return sbi->blocks_per_seg;
+}
+
 static inline void __set_free(struct f2fs_sb_info *sbi, unsigned int segno)
 {
 	struct free_segmap_info *free_i = FREE_I(sbi);

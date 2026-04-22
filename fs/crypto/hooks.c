@@ -115,7 +115,7 @@ EXPORT_SYMBOL_GPL(__fscrypt_prepare_lookup);
 
 int __fscrypt_prepare_readdir(struct inode *dir)
 {
-	return fscrypt_get_encryption_info(dir, true);
+	return fscrypt_get_encryption_info(dir);
 }
 EXPORT_SYMBOL_GPL(__fscrypt_prepare_readdir);
 
@@ -172,31 +172,23 @@ int fscrypt_prepare_setflags(struct inode *inode,
 }
 
 /**
- * fscrypt_prepare_symlink() - prepare to create a possibly-encrypted symlink
+ * __fscrypt_prepare_symlink() - prepare to create an encrypted symlink
  * @dir: directory in which the symlink is being created
- * @target: plaintext symlink target
- * @len: length of @target excluding null terminator
+ * @len: length of symlink target excluding null terminator
  * @max_len: space the filesystem has available to store the symlink target
  * @disk_link: (out) the on-disk symlink target being prepared
  *
- * This function computes the size the symlink target will require on-disk,
+ * This computes the size the symlink target will require on-disk,
  * stores it in @disk_link->len, and validates it against @max_len.  An
  * encrypted symlink may be longer than the original.
- *
- * Additionally, @disk_link->name is set to @target if the symlink will be
- * unencrypted, but left NULL if the symlink will be encrypted.  For encrypted
- * symlinks, the filesystem must call fscrypt_encrypt_symlink() to create the
- * on-disk target later.  (The reason for the two-step process is that some
- * filesystems need to know the size of the symlink target before creating the
- * inode, e.g. to determine whether it will be a "fast" or "slow" symlink.)
  *
  * Return: 0 on success, -ENAMETOOLONG if the symlink target is too long,
  * -ENOKEY if the encryption key is missing, or another -errno code if a problem
  * occurred while setting up the encryption key.
  */
-int fscrypt_prepare_symlink(struct inode *dir, const char *target,
-			    unsigned int len, unsigned int max_len,
-			    struct fscrypt_str *disk_link)
+int __fscrypt_prepare_symlink(struct inode *dir, unsigned int len,
+			      unsigned int max_len,
+			      struct fscrypt_str *disk_link)
 {
 	const union fscrypt_policy *policy;
 
@@ -206,14 +198,8 @@ int fscrypt_prepare_symlink(struct inode *dir, const char *target,
 	 * the encryption policy which will be inherited from the directory.
 	 */
 	policy = fscrypt_policy_to_inherit(dir);
-	if (policy == NULL) {
-		/* Not encrypted */
-		disk_link->name = (unsigned char *)target;
-		disk_link->len = len + 1;
-		if (disk_link->len > max_len)
-			return -ENAMETOOLONG;
-		return 0;
-	}
+	if (WARN_ON_ONCE(policy == NULL))
+		return -EINVAL;
 	if (IS_ERR(policy))
 		return PTR_ERR(policy);
 
@@ -237,7 +223,7 @@ int fscrypt_prepare_symlink(struct inode *dir, const char *target,
 	disk_link->name = NULL;
 	return 0;
 }
-EXPORT_SYMBOL_GPL(fscrypt_prepare_symlink);
+EXPORT_SYMBOL_GPL(__fscrypt_prepare_symlink);
 
 int __fscrypt_encrypt_symlink(struct inode *inode, const char *target,
 			      unsigned int len, struct fscrypt_str *disk_link)
@@ -331,7 +317,7 @@ const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
 	 * Try to set up the symlink's encryption key, but we can continue
 	 * regardless of whether the key is available or not.
 	 */
-	err = fscrypt_get_encryption_info(inode, false);
+	err = fscrypt_get_encryption_info(inode);
 	if (err)
 		return ERR_PTR(err);
 	has_key = fscrypt_has_encryption_key(inode);
@@ -353,7 +339,7 @@ const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
 	if (cstr.len + sizeof(*sd) - 1 > max_size)
 		return ERR_PTR(-EUCLEAN);
 
-	err = fscrypt_fname_alloc_buffer(cstr.len, &pstr);
+	err = fscrypt_fname_alloc_buffer(inode, cstr.len, &pstr);
 	if (err)
 		return ERR_PTR(err);
 

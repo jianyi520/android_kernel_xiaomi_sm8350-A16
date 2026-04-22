@@ -22,6 +22,8 @@
 #include <trace/hooks/sysrqcrash.h>
 #include <trace/hooks/cgroup.h>
 #include <trace/hooks/sys.h>
+#include <trace/hooks/psci.h>
+#include <trace/hooks/ion.h>
 
 /*
  * Export tracepoints that act as a bare tracehook (ie: have no trace event
@@ -73,3 +75,6 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_map_util_freq);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_em_pd_energy);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_cgroup_set_task);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_syscall_prctl_finished);
+EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_psci_tos_resident_on);
+EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_psci_cpu_suspend);
+EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_ion_buffer_release);

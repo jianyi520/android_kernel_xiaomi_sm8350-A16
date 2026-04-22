@@ -593,6 +593,7 @@ config VIRTIO_FASTRPC
 
 config MSM_RDBG
 	tristate "QTI Remote debug driver"
+	depends on QCOM_SMEM
 	help
 	  Implements a shared memory based transport mechanism that allows
 	  for a debugger running on a host PC to communicate with a remote

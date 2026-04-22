@@ -1266,7 +1266,7 @@ SYSCALL_DEFINE6(process_madvise, int, which, pid_t, upid,
 		if (upid < 0)
 			return -EINVAL;
 
-		pid = pidfd_get_pid(upid);
+		pid = pidfd_get_pid(upid, NULL);
 		if (IS_ERR(pid))
 			return PTR_ERR(pid);
 		break;

@@ -20,7 +20,6 @@
 #include "segment.h"
 #include "node.h"
 #include "gc.h"
-#include "trace.h"
 #include <trace/events/f2fs.h>
 
 #define __reverse_ffz(x) __reverse_ffs(~(x))
@@ -843,7 +842,7 @@ static void locate_dirty_segment(struct f2fs_sb_info *sbi, unsigned int segno)
 	mutex_lock(&dirty_i->seglist_lock);
 
 	valid_blocks = get_valid_blocks(sbi, segno, false);
-	ckpt_valid_blocks = get_ckpt_valid_blocks(sbi, segno);
+	ckpt_valid_blocks = get_ckpt_valid_blocks(sbi, segno, false);
 
 	if (valid_blocks == 0 && (!is_sbi_flag_set(sbi, SBI_CP_DISABLED) ||
 				ckpt_valid_blocks == sbi->blocks_per_seg)) {
@@ -926,7 +925,7 @@ static unsigned int get_free_segment(struct f2fs_sb_info *sbi)
 	for_each_set_bit(segno, dirty_i->dirty_segmap[DIRTY], MAIN_SEGS(sbi)) {
 		if (get_valid_blocks(sbi, segno, false))
 			continue;
-		if (get_ckpt_valid_blocks(sbi, segno))
+		if (get_ckpt_valid_blocks(sbi, segno, false))
 			continue;
 		mutex_unlock(&dirty_i->seglist_lock);
 		return segno;
@@ -1936,7 +1935,7 @@ static void set_prefree_as_free_segments(struct f2fs_sb_info *sbi)
 
 	mutex_lock(&dirty_i->seglist_lock);
 	for_each_set_bit(segno, dirty_i->dirty_segmap[PRE], MAIN_SEGS(sbi))
-		__set_test_and_free(sbi, segno);
+		__set_test_and_free(sbi, segno, false);
 	mutex_unlock(&dirty_i->seglist_lock);
 }
 
@@ -2617,7 +2616,7 @@ static int get_ssr_segment(struct f2fs_sb_info *sbi, int type)
 	bool reversed = false;
 
 	/* f2fs_need_SSR() already forces to do this */
-	if (v_ops->get_victim(sbi, &segno, BG_GC, type, SSR)) {
+	if (v_ops->get_victim(sbi, &segno, BG_GC, type, SSR, 0)) {
 		curseg->next_segno = segno;
 		return 1;
 	}
@@ -2644,7 +2643,7 @@ static int get_ssr_segment(struct f2fs_sb_info *sbi, int type)
 	for (; cnt-- > 0; reversed ? i-- : i++) {
 		if (i == type)
 			continue;
-		if (v_ops->get_victim(sbi, &segno, BG_GC, i, SSR)) {
+		if (v_ops->get_victim(sbi, &segno, BG_GC, i, SSR, 0)) {
 			curseg->next_segno = segno;
 			return 1;
 		}
@@ -2734,7 +2733,7 @@ void f2fs_allocate_new_segments(struct f2fs_sb_info *sbi, int type)
 		curseg = CURSEG_I(sbi, i);
 		if (type == NO_CHECK_TYPE || curseg->next_blkoff ||
 				get_valid_blocks(sbi, curseg->segno, false) ||
-				get_ckpt_valid_blocks(sbi, curseg->segno)) {
+				get_ckpt_valid_blocks(sbi, curseg->segno, false)) {
 			old_segno = curseg->segno;
 			SIT_I(sbi)->s_ops->allocate_segment(sbi, i, true);
 			locate_dirty_segment(sbi, old_segno);
