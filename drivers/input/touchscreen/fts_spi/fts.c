@@ -152,7 +152,14 @@ extern void lpm_disable_for_dev(bool on, char event_dev);
 static int fts_write_charge_status(int status);
 #endif
 
+#if !IS_ENABLED(CONFIG_DRM_MSM)
+static inline int mi_disp_set_fod_queue_work(u32 fod_btn, bool from_touch)
+{
+	return 0;
+}
+#else
 extern int mi_disp_set_fod_queue_work(u32 fod_btn, bool from_touch);
+#endif
 
 /**
 * Release all the touches in the linux input subsystem

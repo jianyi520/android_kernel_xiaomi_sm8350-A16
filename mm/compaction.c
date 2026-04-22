@@ -2445,6 +2445,18 @@ static void compact_nodes(void)
 		compact_node(nid);
 }
 
+/*
+ * Keep compatibility for /proc/sys/vm/reclaim_pages users found in downstream
+ * trees. The value itself is not consumed by upstream compaction logic.
+ */
+unsigned long sysctl_reclaim_pages;
+
+int sysctl_reclaim_pages_handler(struct ctl_table *table, int write,
+			void __user *buffer, size_t *length, loff_t *ppos)
+{
+	return proc_doulongvec_minmax(table, write, buffer, length, ppos);
+}
+
 /* The written value is actually unused, all memory is compacted */
 int sysctl_compact_memory;
 
