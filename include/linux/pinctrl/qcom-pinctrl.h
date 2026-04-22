@@ -6,8 +6,11 @@
 #ifndef __LINUX_PINCTRL_MSM_H__
 #define __LINUX_PINCTRL_MSM_H__
 
+#include <linux/errno.h>
+#include <linux/kconfig.h>
 #include <linux/types.h>
 
+#if IS_REACHABLE(CONFIG_PINCTRL_MSM)
 /* APIS to access qup_i3c registers */
 int msm_qup_write(u32 mode, u32 val);
 int msm_qup_read(u32 mode);
@@ -18,5 +21,31 @@ int msm_gpio_mpm_wake_set(unsigned int gpio, bool enable);
 /* APIS to TLMM Spare registers */
 int msm_spare_write(int spare_reg, u32 val);
 int msm_spare_read(int spare_reg);
+#else
+static inline int msm_qup_write(u32 mode, u32 val)
+{
+	return -ENODEV;
+}
+
+static inline int msm_qup_read(u32 mode)
+{
+	return -ENODEV;
+}
+
+static inline int msm_gpio_mpm_wake_set(unsigned int gpio, bool enable)
+{
+	return -ENODEV;
+}
+
+static inline int msm_spare_write(int spare_reg, u32 val)
+{
+	return -ENODEV;
+}
+
+static inline int msm_spare_read(int spare_reg)
+{
+	return -ENODEV;
+}
+#endif
 
 #endif /* __LINUX_PINCTRL_MSM_H__ */

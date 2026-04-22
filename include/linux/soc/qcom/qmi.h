@@ -7,7 +7,9 @@
 #define __QMI_HELPERS_H__
 
 #include <linux/completion.h>
+#include <linux/errno.h>
 #include <linux/idr.h>
+#include <linux/kconfig.h>
 #include <linux/list.h>
 #include <linux/qrtr.h>
 #include <linux/types.h>
@@ -103,7 +105,15 @@ struct qmi_response_type_v01 {
 	u16 error;
 };
 
+#if IS_REACHABLE(CONFIG_QCOM_QMI_HELPERS)
 extern struct qmi_elem_info qmi_response_type_v01_ei[];
+#else
+static struct qmi_elem_info qmi_response_type_v01_ei[] = {
+	{
+		.data_type = QMI_EOTI,
+	},
+};
+#endif
 
 /**
  * struct qmi_service - context to track lookup-results
@@ -236,6 +246,7 @@ struct qmi_handle {
 	const struct qmi_msg_handler *handlers;
 };
 
+#if IS_REACHABLE(CONFIG_QCOM_QMI_HELPERS)
 int qmi_add_lookup(struct qmi_handle *qmi, unsigned int service,
 		   unsigned int version, unsigned int instance);
 int qmi_add_server(struct qmi_handle *qmi, unsigned int service,
@@ -268,5 +279,88 @@ int qmi_txn_init(struct qmi_handle *qmi, struct qmi_txn *txn,
 int qmi_txn_wait(struct qmi_txn *txn, unsigned long timeout);
 void qmi_txn_cancel(struct qmi_txn *txn);
 void qmi_set_sndtimeo(struct qmi_handle *qmi, long timeo);
+#else
+static inline int qmi_add_lookup(struct qmi_handle *qmi, unsigned int service,
+				 unsigned int version, unsigned int instance)
+{
+	return -ENODEV;
+}
+
+static inline int qmi_add_server(struct qmi_handle *qmi, unsigned int service,
+				 unsigned int version, unsigned int instance)
+{
+	return -ENODEV;
+}
+
+static inline int qmi_handle_init(struct qmi_handle *qmi, size_t max_msg_len,
+				  const struct qmi_ops *ops,
+				  const struct qmi_msg_handler *handlers)
+{
+	return -ENODEV;
+}
+
+static inline void qmi_handle_release(struct qmi_handle *qmi)
+{
+}
+
+static inline ssize_t qmi_send_request(struct qmi_handle *qmi,
+				       struct sockaddr_qrtr *sq,
+				       struct qmi_txn *txn, int msg_id,
+				       size_t len, struct qmi_elem_info *ei,
+				       const void *c_struct)
+{
+	return -ENODEV;
+}
+
+static inline ssize_t qmi_send_response(struct qmi_handle *qmi,
+					struct sockaddr_qrtr *sq,
+					struct qmi_txn *txn, int msg_id,
+					size_t len, struct qmi_elem_info *ei,
+					const void *c_struct)
+{
+	return -ENODEV;
+}
+
+static inline ssize_t qmi_send_indication(struct qmi_handle *qmi,
+					  struct sockaddr_qrtr *sq, int msg_id,
+					  size_t len, struct qmi_elem_info *ei,
+					  const void *c_struct)
+{
+	return -ENODEV;
+}
+
+static inline void *qmi_encode_message(int type, unsigned int msg_id,
+				       size_t *len, unsigned int txn_id,
+				       struct qmi_elem_info *ei,
+				       const void *c_struct)
+{
+	return NULL;
+}
+
+static inline int qmi_decode_message(const void *buf, size_t len,
+				     struct qmi_elem_info *ei, void *c_struct)
+{
+	return -ENODEV;
+}
+
+static inline int qmi_txn_init(struct qmi_handle *qmi, struct qmi_txn *txn,
+			       struct qmi_elem_info *ei, void *c_struct)
+{
+	return -ENODEV;
+}
+
+static inline int qmi_txn_wait(struct qmi_txn *txn, unsigned long timeout)
+{
+	return -ENODEV;
+}
+
+static inline void qmi_txn_cancel(struct qmi_txn *txn)
+{
+}
+
+static inline void qmi_set_sndtimeo(struct qmi_handle *qmi, long timeo)
+{
+}
+#endif
 
 #endif
