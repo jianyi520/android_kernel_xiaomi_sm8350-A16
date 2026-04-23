@@ -7,6 +7,7 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/ioctl.h>
+#include <linux/compat.h>
 #include <linux/bitops.h>
 #include <sound/hwdep.h>
 #include <audio/sound/msmcal-hwdep.h>

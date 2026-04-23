@@ -16,6 +16,7 @@
 #include <sound/core.h>
 #include <sound/soc.h>
 #include <sound/soc-dapm.h>
+#include <linux/compat.h>
 #include <sound/pcm.h>
 #include <sound/timer.h>
 #include <sound/initval.h>

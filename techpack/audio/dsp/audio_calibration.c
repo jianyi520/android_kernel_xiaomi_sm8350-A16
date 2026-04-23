@@ -6,6 +6,7 @@
 #include <linux/fs.h>
 #include <linux/module.h>
 #include <linux/miscdevice.h>
+#include <linux/compat.h>
 #include <linux/uaccess.h>
 #include <linux/mutex.h>
 #include <linux/msm_ion.h>
