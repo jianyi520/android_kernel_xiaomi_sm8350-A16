@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) 2008-2021, The Linux Foundation. All rights reserved.
- * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2008-2020, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  */
 #ifndef __KGSL_H
 #define __KGSL_H
@@ -222,6 +222,9 @@ struct kgsl_memdesc {
 	 * multiple entities trying to map the same SVM region at once
 	 */
 	spinlock_t lock;
+#if IS_ENABLED(CONFIG_MIMISC_MC)
+	struct page memgroup;
+#endif
 };
 
 /**
