@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #define pr_fmt(fmt)	"AMOLED: %s: " fmt, __func__
@@ -44,10 +45,16 @@
 #define IBB_PS_CTL(chip)	(chip->ibb_base + 0x50)
 #define EN_PS_BIT		BIT(7)
 #define PS_THRESHOLD_0P5		0x1
-
 #define IBB_SMART_PS_CTL(chip)	(chip->ibb_base + 0x65)
 #define STARTUP_PS_BIT		BIT(5)
 #define STEADY_STATE_PS_BIT		BIT(4)
+
+#define IBB_STATUS_2(chip)	(chip->ibb_base + 0x09)
+#define SOFT_START_DONE_BIT	BIT(6)
+
+#define IBB_STATUS_5(chip)	(chip->ibb_base + 0x0c)
+#define SWIRE_EN		BIT(0)
+
 
 #define IBB_DUAL_PHASE_CTL(chip)	(chip->ibb_base + 0x70)
 
@@ -56,6 +63,9 @@
 #define AUTO_DUAL_PHASE_BIT		BIT(2)
 #define FORCE_DUAL_PHASE_BIT		BIT(1)
 #define FORCE_SINGLE_PHASE_BIT		BIT(0)
+
+#define IBB_RETRY_COUNT	25
+#define IBB_POLL_DELAY_MS	20
 
 struct amoled_regulator {
 	struct regulator_desc	rdesc;
@@ -104,6 +114,7 @@ struct qpnp_amoled {
 	u32			ibb_base;
 
 	struct work_struct		ibb_ccm_wa_work;
+	struct wakeup_source	*wake_source;
 };
 
 enum reg_type {
@@ -614,7 +625,11 @@ static int qpnp_amoled_hw_init(struct qpnp_amoled *chip)
 		if (rc < 0)
 			return rc;
 
-		INIT_WORK(&chip->ibb_ccm_wa_work, qpnp_amoled_toggle_ps_ctl);
+		chip->wake_source = wakeup_source_register(NULL, "qcom-amoled");
+		if (!chip->wake_source)
+			return -EINVAL;
+
+		INIT_WORK(&chip->work, qpnp_amoled_toggle_ps_ctl);
 	}
 
 	return 0;

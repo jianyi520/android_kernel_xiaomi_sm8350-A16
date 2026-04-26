@@ -307,9 +307,7 @@ static int qcom_dload_reboot(struct notifier_block *this, unsigned long event,
 	poweroff->in_reboot = true;
 	set_download_mode(QCOM_DOWNLOAD_NODUMP);
 	if (cmd) {
-		if (!strcmp(cmd, "edl"))
-			set_download_mode(QCOM_DOWNLOAD_EDL);
-		else if (!strcmp(cmd, "qcom_dload"))
+		if (!strcmp(cmd, "qcom_dload"))
 			msm_enable_dump_mode(true);
 	}
 
