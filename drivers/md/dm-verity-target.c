@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (C) 2012 Red Hat, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * Author: Mikulas Patocka <mpatocka@redhat.com>
  *
@@ -79,11 +80,6 @@ struct buffer_aux {
 /*
  * While system shutdown, skip verity work for I/O error.
  */
-static inline bool verity_is_system_shutting_down(void)
-{
-	return system_state == SYSTEM_HALT || system_state == SYSTEM_POWER_OFF
-		|| system_state == SYSTEM_RESTART;
-}
 
 /*
  * Initialize struct buffer_aux for a freshly created buffer.
@@ -562,6 +558,15 @@ static int verity_verify_io(struct dm_verity_io *io)
 	}
 
 	return 0;
+}
+
+/*
+ * Skip verity work in response to I/O error when system is shutting down.
+ */
+static inline bool verity_is_system_shutting_down(void)
+{
+	return system_state == SYSTEM_HALT || system_state == SYSTEM_POWER_OFF
+		|| system_state == SYSTEM_RESTART;
 }
 
 /*
